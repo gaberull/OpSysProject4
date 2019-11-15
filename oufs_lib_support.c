@@ -619,6 +619,7 @@ BLOCK_REFERENCE oufs_allocate_new_block(BLOCK *master_block, BLOCK *new_block)
 
   // TODO
 
-  return(block_reference);
+    // change this master block reference
+  return(MASTER_BLOCK_REFERENCE);
 }
 

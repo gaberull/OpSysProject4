@@ -539,8 +539,24 @@ OUFILE* oufs_fopen(char *cwd, char *path, char *mode)
   }
 
   // TODO
+    // Handle mode == "r"
+    if (mode[0] == 'r')
+    {
+        if (ret == -1)
+        {
+            fprintf(stderr, "oufs_fopen() Child did not exist on r call)");
+            return (NULL);
+        }
+        // TODO: Child will be -1?? when its a file
+        
+    }
+    
+    
+    // TODO: Handle case mode[0] == "w"
+    
+    // TODO: Handle case mode[0] == "a"
 
-  return(fp);
+  return (NULL);
 };
 
 /**
