@@ -318,7 +318,7 @@ int oufs_find_file(char *cwd, char * path, INODE_REFERENCE *parent, INODE_REFERE
         INODE_REFERENCE temp = (INODE_REFERENCE)oufs_find_directory_element(&start, directory_name);
         if ((int)temp == -1)
         {
-            // inode is a file
+            // inode is (possibly) a file
             fprintf(stderr, "\tThis is a file not a directory\n");
         }
         else if (temp != UNALLOCATED_INODE)
@@ -349,14 +349,6 @@ int oufs_find_file(char *cwd, char * path, INODE_REFERENCE *parent, INODE_REFERE
     
     // Item found.
     
-    // Dr. FAGG says this is code is for handling cases like /foo/bar//baz/// pretend it is not here
-    /*
-     if(*child == UNALLOCATED_INODE) {
-     // We went too far - roll back one step ***
-     *child = *parent;
-     *parent = grandparent;
-     }
-     */
     if(debug) {
         fprintf(stderr, "\tDEBUG: Found: parent %d, child %d\n", *parent, *child);
     }
@@ -517,9 +509,57 @@ INODE_REFERENCE oufs_create_file(INODE_REFERENCE parent, char *local_name)
   }
 
   // TODO
+    BLOCK dirblock;
+    virtual_disk_read_block(inode.content, &dirblock);
+    BLOCK masterblock;
+    virtual_disk_read_block(MASTER_BLOCK_REFERENCE, &dirblock);
+    // Get open bit in master block
+    INODE_REFERENCE fileref = UNALLOCATED_INODE;
+    int byte = -1;
+    int bit = -1;
+    for (int i=0; i<N_INODES; i++)
+    {
+        // TODO: double check all this
+        byte = i/8;
+        bit = oufs_find_open_bit(masterblock.content.master.inode_allocated_flag[byte]);
+        if (bit != -1)
+        {
+            // open bit found, set bit to 1 in inode allocation table
+            fileref = (INODE_REFERENCE)((7-bit) +(i));
+            masterblock.content.master.inode_allocated_flag[byte] = (masterblock.content.master.inode_allocated_flag[byte] | (1<<bit) );
+            break;
+        }
+    }
+    // error if no open bit was found above. return UNALLOCATED_INODE
+    if (fileref == UNALLOCATED_INODE)
+        return fileref;
+    INODE newFile;
+    oufs_read_inode_by_reference(fileref, &newFile);
+    
+    for (int i=2; i<N_DIRECTORY_ENTRIES_PER_BLOCK; i++)
+    {
+        if (dirblock.content.directory.entry[i].inode_reference == UNALLOCATED_INODE)
+        {
+            oufs_set_inode(&newFile, FILE_TYPE, 1, UNALLOCATED_BLOCK, 0);
+            dirblock.content.directory.entry[i].inode_reference =  fileref;
+            // copy local name to parent directory block entry
+            strcpy(dirblock.content.directory.entry[i].name, local_name);
+            // write parent directory block and inode back to disk
+            inode.size++;
+            break;
+        }
+    }
+    // TODO: not sure if i need to set up OUFILE or what mode would be seems like it would be lost without memset() call
+    
+    // Write back to disk for all
+    oufs_write_inode_by_reference(parent, &inode);
+    virtual_disk_write_block(MASTER_BLOCK_REFERENCE, &masterblock);
+    virtual_disk_write_block(inode.content, &dirblock);
+    oufs_write_inode_by_reference(fileref, &newFile);
+    
 
   // Success
-  return(inode_reference);
+    return (fileref);
 }
 
 /**
