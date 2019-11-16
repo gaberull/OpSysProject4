@@ -5,3 +5,4 @@ Discussed project with Marcos Tsavarez
 
 References:
 http://www.cplusplus.com/reference/cstring/memset/
+http://www.cplusplus.com/reference/cstdlib/malloc/
