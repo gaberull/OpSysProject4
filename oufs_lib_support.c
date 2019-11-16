@@ -248,7 +248,8 @@ int oufs_find_directory_element(INODE *inode, char *element_name)
         }
         return UNALLOCATED_INODE;
     }
-    return (-1);
+    // changed this from -1
+    return UNALLOCATED_INODE;
 }
 
 /**
