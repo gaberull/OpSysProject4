@@ -539,24 +539,70 @@ OUFILE* oufs_fopen(char *cwd, char *path, char *mode)
   }
 
   // TODO
-    // Handle mode == "r"
+    // TODO: check this malloc. See if its correct
+    //OUFILE *file;
+    //file = (OUFILE*)malloc(sizeof(*file));
+    OUFILE *file = malloc(sizeof(OUFILE));
+    
+    // Handle mode == 'r' READ
     if (mode[0] == 'r')
     {
-        if (ret == -1)
+        // TODO: Child will be UNALLOCATED INODE
+        if (child == UNALLOCATED_INODE)
         {
-            fprintf(stderr, "oufs_fopen() Child did not exist on r call)");
+            fprintf(stderr, "oufs_fopen() Child not found for mode 'r'\n");
             return (NULL);
         }
-        // TODO: Child will be -1?? when its a file
+        file->offset = 0;
+        file->mode = 'r';
         
     }
-    
-    
-    // TODO: Handle case mode[0] == "w"
-    
-    // TODO: Handle case mode[0] == "a"
+    else if (mode[0]=='w')  // WRITE
+    {
+        // File does not exist. Create file.
+        if (child == UNALLOCATED_INODE)
+        {
+            INODE_REFERENCE temp;
+            temp = oufs_create_file(parent, local_name);
+            if (temp == UNALLOCATED_INODE)
+            {
+                return (NULL);
+            }
+            oufs_read_inode_by_reference(temp, &inode);
+            // inode is now the inode for new file
+            file->inode_reference = temp;
+        }
+        else // File exists. Truncate (steps to that)
+        {
+            
+            oufs_deallocate_block(<#BLOCK *master_block#>, <#BLOCK_REFERENCE block_reference#>);
+            
+        }
+        file->offset = 0;
+        inode.size = 0;
+        file->mode = 'w';
+        
+    }
+    else    // mode is 'a'  APPEND
+    {
+        // if file doesn't exist
+        if (child == UNALLOCATED_INODE)
+        {
+            // File does not exist. Create it.
+            INODE_REFERENCE temp;
+            temp = oufs_create_file(parent, local_name);
+            if (temp == UNALLOCATED_INODE)
+            {
+                return (NULL);
+            }
+            oufs_read_inode_by_reference(temp, &inode);
+            file->inode_reference = temp;
+        }
+        file->offset = inode.size;
+        file->mode = 'a';
+    }
 
-  return (NULL);
+  return (&file);
 };
 
 /**
