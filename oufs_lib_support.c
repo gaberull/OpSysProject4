@@ -339,6 +339,7 @@ int oufs_find_file(char *cwd, char * path, INODE_REFERENCE *parent, INODE_REFERE
         {
             fprintf(stderr,"\tDirectory not found, setting local_name\n");
             //unallocated inode
+            *parent= *child;
             *child=UNALLOCATED_INODE;
             if(local_name!=NULL)
                 strcpy(local_name, directory_name);
