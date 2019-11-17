@@ -35,7 +35,7 @@ int oufs_deallocate_block(BLOCK *master_block, BLOCK_REFERENCE block_reference)
         // No blocks on the free list.  Both pointers point to this block now
         master_block->content.master.unallocated_front = master_block->content.master.unallocated_end =
         block_reference;
-        fprintf(stderr, "Resetting master unallocated end and front to point to newly empty block.\n");
+        //fprintf(stderr, "Resetting master unallocated end and front to point to newly empty block.\n");
         
     }else{
         BLOCK prevEndBlock;
@@ -49,13 +49,13 @@ int oufs_deallocate_block(BLOCK *master_block, BLOCK_REFERENCE block_reference)
         prevEndBlock.next_block = block_reference;
         
         if(virtual_disk_write_block(prevEnd, &prevEndBlock) != 0) {
-            fprintf(stderr, "deallocate_block: error writing old end block\n");
+            //fprintf(stderr, "deallocate_block: error writing old end block\n");
             return(-1);
         }
         
         master_block->content.master.unallocated_end = block_reference;
         
-        fprintf(stderr, "Resetting master unallocated end to point to newly empty block.\n");
+        //fprintf(stderr, "Resetting master unallocated end to point to newly empty block.\n");
     }
     
     //add block back to unallocated block list
@@ -79,7 +79,7 @@ int oufs_deallocate_block(BLOCK *master_block, BLOCK_REFERENCE block_reference)
         return(-1);
     }
     
-    fprintf(stderr, "Writing block back to disk.\n");
+    //fprintf(stderr, "Writing block back to disk.\n");
     return(0);
 };
 
@@ -513,7 +513,7 @@ INODE_REFERENCE oufs_create_file(INODE_REFERENCE parent, char *local_name)
     BLOCK dirblock;
     virtual_disk_read_block(inode.content, &dirblock);
     BLOCK masterblock;
-    virtual_disk_read_block(MASTER_BLOCK_REFERENCE, &dirblock);
+    virtual_disk_read_block(MASTER_BLOCK_REFERENCE, &masterblock);
     // Get open bit in master block
     INODE_REFERENCE fileref = UNALLOCATED_INODE;
     int byte = -1;
@@ -589,7 +589,35 @@ int oufs_deallocate_blocks(INODE *inode)
     return(0);
 
   // TODO
-
+    BLOCK_REFERENCE br;
+    BLOCK_REFERENCE next;
+    br = inode->content;
+    //virtual_disk_read_block(br, &block);
+    while (br != UNALLOCATED_BLOCK)
+    {
+        // read master block from disk to block mb
+        virtual_disk_read_block(MASTER_BLOCK_REFERENCE, &master_block);
+        
+        // read the block in the chain of blocks in the file
+        virtual_disk_read_block(br, &block);
+        
+        // get next block in chain before deallocating
+        next = block.next_block;
+        
+        // deallocate in memory master block and DISK copy of br
+        if (oufs_deallocate_block(&master_block, br) <0 )
+        {
+            fprintf(stderr, "error while deallocating and individual block in chain\n");
+            return -2;
+        }
+        
+        // write master block to disk
+        virtual_disk_write_block(MASTER_BLOCK_REFERENCE, &master_block);
+        
+        // change block reference to next one
+        br = next;
+    }
+    inode->content = UNALLOCATED_BLOCK;
 
   // Success
   return(0);
