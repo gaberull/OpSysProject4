@@ -540,69 +540,119 @@ OUFILE* oufs_fopen(char *cwd, char *path, char *mode)
 
   // TODO
     // TODO: check this malloc. See if its correct
-    //OUFILE *file;
-    //file = (OUFILE*)malloc(sizeof(*file));
     OUFILE *file = malloc(sizeof(OUFILE));
     
-    // Handle mode == 'r' READ
+    ////// READ ///////
     if (mode[0] == 'r')
     {
-        // TODO: Child will be UNALLOCATED INODE
+        // Child does not exist - ERROR
         if (child == UNALLOCATED_INODE)
         {
             fprintf(stderr, "oufs_fopen() Child not found for mode 'r'\n");
             return (NULL);
         }
+        
+        oufs_read_inode_by_reference(child, &inode);
+        // Walk down the linked list of blocks (while loop, read content of inode - assuming it exists) increment counter. Put those block references in the cache array
+        int count = 0;
+        BLOCK_REFERENCE b;
+        b = inode.content;
+        BLOCK c;
+        while (b != UNALLOCATED_BLOCK)
+        {
+            file->block_reference_cache[count] = b;
+            count++;
+            virtual_disk_read_block(b, &c);
+            b = c.next_block;
+        }
         file->offset = 0;
+        file->n_data_blocks = count;
+        file->inode_reference = child;
         file->mode = 'r';
         
+        
+        
+        //////
     }
-    else if (mode[0]=='w')  // WRITE
+    //// WRITE /////////
+    else if (mode[0]=='w')
     {
         // File does not exist. Create file.
         if (child == UNALLOCATED_INODE)
         {
-            INODE_REFERENCE temp;
-            temp = oufs_create_file(parent, local_name);
-            if (temp == UNALLOCATED_INODE)
+            child = oufs_create_file(parent, local_name);
+            if (child == UNALLOCATED_INODE)
             {
                 return (NULL);
             }
-            oufs_read_inode_by_reference(temp, &inode);
+            oufs_read_inode_by_reference(child, &inode);
             // inode is now the inode for new file
-            file->inode_reference = temp;
+            
         }
         else // File exists. Truncate (steps to that)
         {
-            
-            oufs_deallocate_block(<#BLOCK *master_block#>, <#BLOCK_REFERENCE block_reference#>);
+            oufs_read_inode_by_reference(child, &inode);
+            // deallocate blocks of file
+            if (oufs_deallocate_blocks(&inode) < 0)
+                return (NULL);
             
         }
+        // below things apply to 'w' for both prexisting and non preexisting files
+        file->n_data_blocks = 0;
+        file->inode_reference = child;
         file->offset = 0;
-        inode.size = 0;
+        inode.size = 0;   // should be done in create_file I think
         file->mode = 'w';
+        // write back to disk for setting size (create file should've done it already for no prev file)
+        oufs_write_inode_by_reference(child, &inode);
         
     }
+    ///// APPEND ////////
     else    // mode is 'a'  APPEND
     {
         // if file doesn't exist
         if (child == UNALLOCATED_INODE)
         {
             // File does not exist. Create it.
-            INODE_REFERENCE temp;
-            temp = oufs_create_file(parent, local_name);
-            if (temp == UNALLOCATED_INODE)
+            child = oufs_create_file(parent, local_name);
+            if (child == UNALLOCATED_INODE)
             {
+                fprintf(stderr, "child == UNALLOCATED_INODE after create_file() \n");
                 return (NULL);
             }
-            oufs_read_inode_by_reference(temp, &inode);
-            file->inode_reference = temp;
+
+            oufs_read_inode_by_reference(child, &inode);
+            file->offset = 0;
+            file->n_data_blocks = 0;
+            
         }
-        file->offset = inode.size;
+        else        // File does exist
+        {
+            
+            oufs_read_inode_by_reference(child, &inode);
+            file->offset = inode.size;
+            // Walk down the linked list of blocks (while loop, read content of inode - assuming it exists) increment counter. Put those block references in the cache array
+            int count = 0;
+            BLOCK_REFERENCE b;
+            b = inode.content;
+            BLOCK c;
+            
+            while (b != UNALLOCATED_BLOCK)
+            {
+                file->block_reference_cache[count] = b;
+                count++;
+                virtual_disk_read_block(b, &c);
+                b = c.next_block;
+            }
+            file->n_data_blocks = count;
+        }
+        // for both conditions (pre-existing or non file)
+        file->inode_reference = child;
         file->mode = 'a';
+        
     }
 
-  return (&file);
+  return (file);
 };
 
 /**
