@@ -30,8 +30,6 @@ const char *INODE_TYPE_NAME[] = {"UNUSED", "DIRECTORY", "FILE"};
 void oufs_get_environment(char *cwd, char *disk_name,
                           char *pipe_name_base)
 {
-    // TODO: remove below print statement
-    fprintf(stderr, "INSIDE get_environment\n");
     // Current working directory for the OUFS
     char *str = getenv("OUFS_PWD");
     if(str == NULL) {

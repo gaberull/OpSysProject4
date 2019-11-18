@@ -13,8 +13,6 @@
 
 int main(int argc, char** argv) {
   // Fetch the key environment vars
-    // TODO: remove below print statement
-    fprintf(stderr, "INSIDE TOUCH main\n");
   char cwd[MAX_PATH_LENGTH];
   char disk_name[MAX_PATH_LENGTH];
   char pipe_name_base[MAX_PATH_LENGTH];
