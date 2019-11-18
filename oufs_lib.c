@@ -610,10 +610,10 @@ OUFILE* oufs_fopen(char *cwd, char *path, char *mode)
     ///// APPEND ////////
     else    // mode is 'a'  APPEND
     {
+        fprintf(stderr, "INSIDE FOPEN 'A': local_name is %s\n", local_name);
         // if file doesn't exist
         if (child == UNALLOCATED_INODE)
         {
-            fprintf(stderr, "INSIDE FOPEN 'A': local_name is %s\n", local_name);
             // File does not exist. Create it.
             child = oufs_create_file(parent, local_name);
             if (child == UNALLOCATED_INODE)
