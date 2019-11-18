@@ -23,7 +23,8 @@ int main(int argc, char** argv) {
   }else{
     // Open the virtual disk
     virtual_disk_attach(disk_name, pipe_name_base);
-
+      // TODO: remove below print statement
+      fprintf(stderr, "INSIDE touch: before oufs_fopen \n");
     // Open the file
     OUFILE *fp = oufs_fopen(cwd, argv[1], "a");
 
