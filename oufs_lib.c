@@ -172,8 +172,7 @@ static int inode_compare_to(const void *d1, const void *d2)
     // Type casting from generic to DIRECTORY_ENTRY*
     DIRECTORY_ENTRY* e1 = (DIRECTORY_ENTRY*) d1;
     DIRECTORY_ENTRY* e2 = (DIRECTORY_ENTRY*) d2;
-    
-    // TODO: complete implementation
+
     // if e1 comes before e2 or if e1 is only valid one
     int e1valid = 1;
     int e2valid = 1;
@@ -252,7 +251,6 @@ int oufs_list(char *cwd, char *path)
         if(debug)
             fprintf(stderr, "\tDEBUG: Child found (type=%s).\n",  INODE_TYPE_NAME[inode.type]);
         
-        // TODO: complete implementation
         BLOCK b;
         memset(&b, 0, sizeof(BLOCK));
         virtual_disk_read_block(inode.content, &b);
@@ -267,9 +265,7 @@ int oufs_list(char *cwd, char *path)
                 // May be holes in the directory. So must check whole list. Not just inode.size many
                 if (b.content.directory.entry[i].inode_reference != UNALLOCATED_INODE)
                 {
-                    // TODO: STill need to check if the entry is a directory and if so, add a / to the end
-                    // TODO: check if I can write over the inode at this point
-                    // check to see if inode_reference of the entry is a directory or not
+                    // check if the entry is a directory and if so, add a '/' to the end
                     oufs_read_inode_by_reference(b.content.directory.entry[i].inode_reference, &inode);
                     if (inode.type == DIRECTORY_TYPE)
                     {
@@ -339,8 +335,6 @@ int oufs_mkdir(char *cwd, char *path)
             fprintf(stderr, "oufs_mkdir(): ret = %d\n", ret);
         return(-1);
     };
-    // CHILD MUST NOT EXIST!??!
-    // TODO: complete implementation
     
     fprintf(stderr, "\nlocal_name is  = %s\n", local_name);
     // parent inode and block
@@ -348,13 +342,12 @@ int oufs_mkdir(char *cwd, char *path)
     oufs_read_inode_by_reference(parent, &parentinode);
     
     BLOCK pblock;
-    // TODO: Is this read in right spot?
     virtual_disk_read_block(parentinode.content, &pblock);
     
     
     // add to parent directory and increment size
     
-    // TODO: he says add it to first AVAILABLE ENTRY?????
+    // add it to first AVAILABLE ENTRY
     for (int i=2; i<N_DIRECTORY_ENTRIES_PER_BLOCK; i++)
     {
         if (pblock.content.directory.entry[i].inode_reference == UNALLOCATED_INODE)
@@ -366,7 +359,6 @@ int oufs_mkdir(char *cwd, char *path)
                 fprintf(stderr, "oufs_mkdir(): got UNALLOCATED_INODE calling allocate_new_dir");
                 return (-3);
             }
-            // TODO: local_name?????
             pblock.content.directory.entry[i].inode_reference =  child;// insert new inode ref
             // FIXME: this name is not copying correctly
             
@@ -412,10 +404,8 @@ int oufs_rmdir(char *cwd, char *path)
     {
         return -1;
     }
-    // TODO: complete implementation
     // TODO: Will be error for: name does not exist, if its not a directory, if name is . or .., and if not an empty directory
     
-    //TODO: Remove the entry from the parent's directory block
     INODE pnode;
     oufs_read_inode_by_reference(parent, &pnode);
     // error if type isn't directory type
@@ -449,16 +439,13 @@ int oufs_rmdir(char *cwd, char *path)
     
     BLOCK directory;
     virtual_disk_read_block(pnode.content, &directory);
-    
-    // TODO: check this this. seems weird
+
     for (int i=0; i<N_DIRECTORY_ENTRIES_PER_BLOCK; i++)
     {
         fprintf(stderr, "checking directory entry %d:%s\n", i, directory.content.directory.entry[i].name);
-        // TODO: check this name check NOT SURE ABOUT THIS
         if (strcmp(directory.content.directory.entry[i].name, local_name) == 0)
         {
             directory.content.directory.entry[i].inode_reference = UNALLOCATED_INODE;
-            // TODO: do i need to remove the name??
             pnode.size--;
             break;
         }
@@ -539,7 +526,6 @@ OUFILE* oufs_fopen(char *cwd, char *path, char *mode)
   }
 
   // TODO
-    // TODO: check this malloc. See if its correct
     OUFILE *file = malloc(sizeof(OUFILE));
     
     ////// READ ///////
@@ -569,9 +555,7 @@ OUFILE* oufs_fopen(char *cwd, char *path, char *mode)
         file->n_data_blocks = count;
         file->inode_reference = child;
         file->mode = 'r';
-        
-        
-        
+
         //////
     }
     //// WRITE /////////

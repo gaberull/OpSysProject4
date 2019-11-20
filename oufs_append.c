@@ -17,7 +17,8 @@ int main(int argc, char** argv) {
   // Open the virtual disk
   virtual_disk_attach(disk_name, pipe_name_base);
   if(argc == 1) {
-    fprintf(stderr, "Usage: oufs_create <file name>\n");
+      //  skeleton file here said usage: oufs_create .. I assume that is wrong
+    fprintf(stderr, "Usage: oufs_append <file name>\n");
   }else{
     OUFILE *fp = oufs_fopen(cwd, argv[1], "a");
     unsigned char buf[BUF_SIZE];
