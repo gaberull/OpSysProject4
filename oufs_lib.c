@@ -708,13 +708,14 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
          virtual_disk_write_block(ggg, &Gt);
          virtual_disk_write_block(MASTER_BLOCK_REFERENCE, &master);
          //oufs_write_inode_by_reference(fp->inode_reference, &inode);
-         fp->n_data_blocks++;
+         fp->n_data_blocks = 1;
      }
-     
+    BLOCK_REFERENCE currBlock;
+    currBlock = inode.content;
+    if (currBlock == UNALLOCATED_BLOCK)
+        return -2;
+    virtual_disk_read_block(currBlock, &block);
     
-    
-    virtual_disk_read_block(inode.content, &block);
-    BLOCK_REFERENCE currBlock = inode.content;
     
     while(len_written < len)
     {
