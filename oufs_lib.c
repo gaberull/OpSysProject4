@@ -698,22 +698,26 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
     virtual_disk_read_block(MASTER_BLOCK_REFERENCE, &master);
     
     
-    BLOCK block2;
-    // TODO: ???? I believe I have to handle inode sizes of 0 seperately CHECK THIS
-    if (len > 0 && fp->n_data_blocks == 0 && free_bytes_in_last_block == 252)
+    BLOCK_REFERENCE currBlock;
+    currBlock = inode.content;
+    if (inode.content == UNALLOCATED_BLOCK)
     {
-        BLOCK_REFERENCE br;
-        br = oufs_allocate_new_block(&master, &block2);
-        inode.content = br;
-        virtual_disk_write_block(br, &block2);
-        virtual_disk_write_block(MASTER_BLOCK_REFERENCE, &master);
-        fp->n_data_blocks = 1;
+        BLOCK block2;
+        // TODO: ???? I believe I have to handle inode sizes of 0 seperately CHECK THIS
+        if ((fp->n_data_blocks == 0) && (len > 0))
+        {
+            currBlock = oufs_allocate_new_block(&master, &block2);
+            // if unallocated, no more blocks to pull from in linked list - error
+            if (currBlock == UNALLOCATED_BLOCK)
+                return -2;
+            inode.content = currBlock;
+            virtual_disk_write_block(currBlock, &block2);
+            virtual_disk_write_block(MASTER_BLOCK_REFERENCE, &master);
+            fp->n_data_blocks = 1;
+        }
+        
     }
-    
-    
-    
-    virtual_disk_read_block(inode.content, &block);
-    BLOCK_REFERENCE currBlock = inode.content;
+    virtual_disk_read_block(currBlock, &block);
     
     while(len_written < len)
     {
