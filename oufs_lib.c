@@ -544,6 +544,7 @@ OUFILE* oufs_fopen(char *cwd, char *path, char *mode)
         BLOCK_REFERENCE b;
         b = inode.content;
         BLOCK c;
+        virtual_disk_read_block(b, &c);
         while (b != UNALLOCATED_BLOCK)
         {
             file->block_reference_cache[count] = b;
@@ -735,8 +736,8 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
                 return -2;
             // write master block back to disk
             virtual_disk_write_block(MASTER_BLOCK_REFERENCE, &master);
-            virtual_disk_write_block(new, &newBlock);
             block.next_block = new;
+            virtual_disk_write_block(new, &newBlock);
             // write newly written to block back to disk
             virtual_disk_write_block(currBlock, &block);
             
@@ -747,6 +748,7 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
             // for next loop:
             current_blocks++;
             used_bytes_in_last_block = fp->offset % DATA_BLOCK_SIZE;
+            // free bytes should reset to 252
             free_bytes_in_last_block = DATA_BLOCK_SIZE - used_bytes_in_last_block;
             
             currBlock = new;
@@ -770,6 +772,13 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
             }
             virtual_disk_write_block(currBlock, &block);
         }
+    }
+    if (debug)
+    {
+        fprintf(stderr, "end of fwrite: fp->offset is %d\n", fp->offset);
+        fprintf(stderr, "end of fwrite: fp->n_data_blocks is %d\n", fp->n_data_blocks);
+        fprintf(stderr, "end of fwrite: inode.size is %d\n", inode.size);
+        fprintf(stderr, "end of fwrite: len_written is %d\n", len_written);
     }
     //inode size has changed. write it to disk
     oufs_write_inode_by_reference(fp->inode_reference, &inode);
