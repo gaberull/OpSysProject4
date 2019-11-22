@@ -691,7 +691,88 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
   int len_written = 0;
 
   // TODO
-
+    // while we have more bytes to write, allocate new block, copy in some number of bytes ( either bytes left to copy or bytes left to get to end of block - whichever is less)
+    int bytes_left_to_write = -1;
+    BLOCK master;
+    virtual_disk_read_block(MASTER_BLOCK_REFERENCE, &master);
+    
+                                                /*
+    // TODO: ???? I believe I have to handle inode sizes of 0 seperately CHECK THIS
+    if (fp->n_data_blocks == 0)
+    {
+        BLOCK_REFERENCE br;
+        br = oufs_allocate_new_block(&master, &block);
+        inode.content = br;
+        virtual_disk_write_block(br, &block);
+        virtual_disk_write_block(MASTER_BLOCK_REFERENCE, &master);
+        //oufs_write_inode_by_reference(fp->inode_reference, &inode);
+        fp->n_data_blocks = 1;
+    }
+                                                 */
+    
+    
+    virtual_disk_read_block(inode.content, &block);
+    BLOCK_REFERENCE currBlock = inode.content;
+    
+    while(len_written < len)
+    {
+        bytes_left_to_write = len - len_written;
+        // fewer bytes of space available in last block than need to be written
+        if (free_bytes_in_last_block < bytes_left_to_write)
+        {
+            for (int i=0; i<free_bytes_in_last_block; i++)
+            {
+                block.content.data.data[i] = buf[i];
+                len_written++;
+                fp->offset++;
+                inode.size++;
+            }
+            // allocate new block
+            BLOCK_REFERENCE new;
+            BLOCK newBlock;
+            new = oufs_allocate_new_block(&master, &newBlock);
+            if (new == UNALLOCATED_BLOCK)
+                return -2;
+            // write master block back to disk
+            virtual_disk_write_block(MASTER_BLOCK_REFERENCE, &master);
+            virtual_disk_write_block(new, &newBlock);
+            block.next_block = new;
+            // write newly written to block back to disk
+            virtual_disk_write_block(currBlock, &block);
+            
+            fp->n_data_blocks++;
+            //TODO: check that this is right. Not subtracting 1 due to setting next one in chain to the new BLOCK_REF
+            fp->block_reference_cache[current_blocks] = new;
+            
+            // for next loop:
+            current_blocks++;
+            used_bytes_in_last_block = fp->offset % DATA_BLOCK_SIZE;
+            free_bytes_in_last_block = DATA_BLOCK_SIZE - used_bytes_in_last_block;
+            
+            currBlock = new;
+            block = newBlock;
+            
+            if (fp->n_data_blocks > MAX_BLOCKS_IN_FILE)
+            {
+                fp->n_data_blocks--;
+                // TODO: return 0 here when its full?? I don't understand. 
+                break;
+            }
+        }
+        else    // whats left to write will fit in free space left in last block
+        {
+            for (int i=0; i<bytes_left_to_write; i++)
+            {
+                block.content.data.data[i] = buf[i];
+                len_written++;
+                fp->offset++;
+                inode.size++;
+            }
+            virtual_disk_write_block(currBlock, &block);
+        }
+    }
+    //inode size has changed. write it to disk
+    oufs_write_inode_by_reference(fp->inode_reference, &inode);
   // Done
   return(len_written);
 }
