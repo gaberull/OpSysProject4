@@ -699,7 +699,7 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
     
     
      // TODO: ???? I believe I have to handle inode sizes of 0 seperately CHECK THIS
-     if (fp->n_data_blocks == (current_blocks-1))
+     if ((current_blocks == 0) && (len > 0))
      {
          BLOCK Gt;
          BLOCK_REFERENCE ggg;
