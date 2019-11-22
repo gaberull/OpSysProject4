@@ -648,8 +648,14 @@ BLOCK_REFERENCE oufs_allocate_new_block(BLOCK *master_block, BLOCK *new_block)
   }
 
   // TODO
+    BLOCK_REFERENCE front;
+    front = master_block->content.master.unallocated_front;
+    virtual_disk_read_block(front, &new_block);
+    master_block->content.master.unallocated_front = new_block->next_block;
+    new_block->next_block = UNALLOCATED_BLOCK;
+    
 
     // change this master block reference
-  return(MASTER_BLOCK_REFERENCE);
+  return(front);
 }
 
