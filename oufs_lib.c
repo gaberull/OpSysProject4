@@ -698,26 +698,23 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
     virtual_disk_read_block(MASTER_BLOCK_REFERENCE, &master);
     
     
-    BLOCK_REFERENCE currBlock;
-    currBlock = inode.content;
-    if (inode.content == UNALLOCATED_BLOCK)
-    {
-        BLOCK block2;
-        // TODO: ???? I believe I have to handle inode sizes of 0 seperately CHECK THIS
-        if ((fp->n_data_blocks == 0) && (len > 0))
-        {
-            currBlock = oufs_allocate_new_block(&master, &block2);
-            // if unallocated, no more blocks to pull from in linked list - error
-            if (currBlock == UNALLOCATED_BLOCK)
-                return -2;
-            inode.content = currBlock;
-            virtual_disk_write_block(currBlock, &block2);
-            virtual_disk_write_block(MASTER_BLOCK_REFERENCE, &master);
-            fp->n_data_blocks = 1;
-        }
-        
-    }
-    virtual_disk_read_block(currBlock, &block);
+     // TODO: ???? I believe I have to handle inode sizes of 0 seperately CHECK THIS
+     if (fp->n_data_blocks == (current_blocks-1))
+     {
+         BLOCK Gt;
+         BLOCK_REFERENCE ggg;
+         ggg = oufs_allocate_new_block(&master, &Gt);
+         inode.content = ggg;
+         virtual_disk_write_block(ggg, &Gt);
+         virtual_disk_write_block(MASTER_BLOCK_REFERENCE, &master);
+         //oufs_write_inode_by_reference(fp->inode_reference, &inode);
+         fp->n_data_blocks++;
+     }
+     
+    
+    
+    virtual_disk_read_block(inode.content, &block);
+    BLOCK_REFERENCE currBlock = inode.content;
     
     while(len_written < len)
     {
@@ -780,6 +777,7 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
     if (debug)
     {
         fprintf(stderr, "end of fwrite: fp->offset is %d\n", fp->offset);
+        // number of data_blocks is 0 before an attempted write. one should be allocated first.
         fprintf(stderr, "end of fwrite: fp->n_data_blocks is %d\n", fp->n_data_blocks);
         fprintf(stderr, "end of fwrite: inode.size is %d\n", inode.size);
         fprintf(stderr, "end of fwrite: len_written is %d\n", len_written);
