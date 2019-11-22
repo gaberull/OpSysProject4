@@ -697,7 +697,7 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
     BLOCK master;
     virtual_disk_read_block(MASTER_BLOCK_REFERENCE, &master);
     
-    
+                                                /*
     // TODO: ???? I believe I have to handle inode sizes of 0 seperately CHECK THIS
     if (fp->n_data_blocks == 0)
     {
@@ -709,7 +709,7 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
         //oufs_write_inode_by_reference(fp->inode_reference, &inode);
         fp->n_data_blocks = 1;
     }
-                                                 
+                                                 */
     
     
     virtual_disk_read_block(inode.content, &block);
