@@ -701,15 +701,25 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
      // TODO: ???? I believe I have to handle inode sizes of 0 seperately CHECK THIS
      if ((current_blocks == 0) && (len > 0))
      {
-         BLOCK Gt;
-         BLOCK_REFERENCE ggg;
-         ggg = oufs_allocate_new_block(&master, &Gt);
-         inode.content = ggg;
-         virtual_disk_write_block(ggg, &Gt);
-         virtual_disk_write_block(MASTER_BLOCK_REFERENCE, &master);
+         //BLOCK Gt;
+         //BLOCK_REFERENCE ggg;
+         //ggg = oufs_allocate_new_block(&master, &Gt);
+         //inode.content = ggg;
+         //virtual_disk_write_block(ggg, &Gt);
+         //virtual_disk_write_block(MASTER_BLOCK_REFERENCE, &master);
          //oufs_write_inode_by_reference(fp->inode_reference, &inode);
+         //fp->n_data_blocks = 1;
+         
+         BLOCK_REFERENCE startref;
+         BLOCK startblock;
+         startref = oufs_allocate_new_block(&master, &startblock);
+         inode.content = startref;
+         virtual_disk_write_block(MASTER_BLOCK_REFERENCE, &master);
+         // TODO: do i need to write the block that i just alloated to disk?
+         virtual_disk_write_block(startref, &startblock);
          fp->n_data_blocks = 1;
      }
+    
     BLOCK_REFERENCE currBlock;
     currBlock = inode.content;
     if (currBlock == UNALLOCATED_BLOCK)
@@ -717,13 +727,21 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
     virtual_disk_read_block(currBlock, &block);
     
     
+    //for (int j=0; j<current_blocks; j++)
+    //{
+        
+    //}
+    
     while(len_written < len)
     {
         bytes_left_to_write = len - len_written;
+        
+        //if (fp->n_data_blocks < )
+        
         // fewer bytes of space available in last block than need to be written
         if (free_bytes_in_last_block < bytes_left_to_write)
         {
-            for (int i=0; i<free_bytes_in_last_block; i++)
+            for (int i=free_bytes_in_last_block; i<DATA_BLOCK_SIZE; i++)
             {
                 block.content.data.data[i] = buf[i];
                 len_written++;
@@ -734,6 +752,7 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
             BLOCK_REFERENCE new;
             BLOCK newBlock;
             new = oufs_allocate_new_block(&master, &newBlock);
+            // TODO: check that this shouldn't return 0 or something
             if (new == UNALLOCATED_BLOCK)
                 return -2;
             // write master block back to disk
@@ -745,10 +764,11 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
             
             fp->n_data_blocks++;
             //TODO: check that this is right. Not subtracting 1 due to setting next one in chain to the new BLOCK_REF
-            fp->block_reference_cache[current_blocks] = new;
+            fp->block_reference_cache[current_blocks-1] = new;
             
             // for next loop:
-            current_blocks++;
+            // TODO: check this. Before I had current_blocks++
+            current_blocks = (fp->offset + DATA_BLOCK_SIZE - 1) / DATA_BLOCK_SIZE;
             used_bytes_in_last_block = fp->offset % DATA_BLOCK_SIZE;
             // free bytes should reset to 252
             free_bytes_in_last_block = DATA_BLOCK_SIZE - used_bytes_in_last_block;
@@ -756,16 +776,17 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
             currBlock = new;
             block = newBlock;
             
-            if (fp->n_data_blocks > MAX_BLOCKS_IN_FILE)
-            {
-                fp->n_data_blocks--;
-                // TODO: return 0 here when its full?? I don't understand. 
-                break;
-            }
+            // TODO: check the below statement. Not sure about it
+            //if (fp->n_data_blocks > MAX_BLOCKS_IN_FILE)
+            //{
+            //    fp->n_data_blocks--;
+                // TODO: return 0 here when its full?? I don't understand.
+             //   break;
+            //}
         }
         else    // whats left to write will fit in free space left in last block
         {
-            for (int i=0; i<bytes_left_to_write; i++)
+            for (int i=used_bytes_in_last_block; i<(used_bytes_in_last_block + bytes_left_to_write); i++)
             {
                 block.content.data.data[i] = buf[i];
                 len_written++;
