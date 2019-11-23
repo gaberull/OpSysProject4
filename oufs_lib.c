@@ -758,6 +758,7 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
             // check to see if number of blocks <= 100
             // allocate new block
             new = oufs_allocate_new_block(&master, &newBlock);
+            fprintf(stderr, "new == %d\n", new);
             // TODO: check that this shouldn't return 0 or something
             if (new == UNALLOCATED_BLOCK)
                 return -2;
