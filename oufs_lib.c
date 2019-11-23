@@ -717,7 +717,7 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
          virtual_disk_write_block(MASTER_BLOCK_REFERENCE, &master);
          // TODO: do i need to write the block that i just alloated to disk?
          virtual_disk_write_block(startref, &startblock);
-         fp->n_data_blocks = 1;
+         //fp->n_data_blocks = 1;
      }
     
     BLOCK_REFERENCE currBlock;
@@ -743,7 +743,7 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
         {
             for (int i=used_bytes_in_last_block; i<DATA_BLOCK_SIZE; i++)
             {
-                block.content.data.data[i] = buf[i];
+                block.content.data.data[i] = buf[i-used_bytes_in_last_block];
                 len_written++;
                 fp->offset++;
                 inode.size++;
@@ -788,7 +788,7 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
         {
             for (int i=used_bytes_in_last_block; i<(used_bytes_in_last_block + bytes_left_to_write); i++)
             {
-                block.content.data.data[i] = buf[i];
+                block.content.data.data[i] = buf[i-used_bytes_in_last_block];
                 len_written++;
                 fp->offset++;
                 inode.size++;
