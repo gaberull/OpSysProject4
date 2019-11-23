@@ -652,13 +652,13 @@ BLOCK_REFERENCE oufs_allocate_new_block(BLOCK *master_block, BLOCK *new_block)
     front = master_block->content.master.unallocated_front;
     fprintf(stderr, "inside allocate_new_b front == %d\n", front);
     virtual_disk_read_block(front, &new_block);
-    fprintf(stderr, "inside allocate_new_b did read_block w front, &newblock\n");
+    fprintf(stderr, "inside allocate_new_b pointer &newblock is %d\n", new_block);
     /////
-    fprintf(stderr, "inside allocate_new_b new_block->next_block == %d\n", new_block->next_block);
+    //fprintf(stderr, "inside allocate_new_b new_block->next_block == %d\n", new_block->next_block);
     master_block->content.master.unallocated_front = new_block->next_block;
-    fprintf(stderr, "inside allocate_new_b new_block->next_block == %d\n", new_block->next_block);
+    //fprintf(stderr, "inside allocate_new_b new_block->next_block == %d\n", new_block->next_block);
     new_block->next_block = UNALLOCATED_BLOCK;
-    fprintf(stderr, "made it to the end of allocate_new_block");
+    //fprintf(stderr, "made it to the end of allocate_new_block");
     
 
     // change this master block reference
