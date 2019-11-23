@@ -717,7 +717,7 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
          virtual_disk_write_block(MASTER_BLOCK_REFERENCE, &master);
          // TODO: do i need to write the block that i just alloated to disk?
          virtual_disk_write_block(startref, &startblock);
-         //fp->n_data_blocks = 1;
+         fp->n_data_blocks = 1;
      }
     
     BLOCK_REFERENCE currBlock;
@@ -741,7 +741,7 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
         // fewer bytes of space available in last block than need to be written
         if (free_bytes_in_last_block < bytes_left_to_write)
         {
-            for (int i=free_bytes_in_last_block; i<DATA_BLOCK_SIZE; i++)
+            for (int i=used_bytes_in_last_block; i<DATA_BLOCK_SIZE; i++)
             {
                 block.content.data.data[i] = buf[i];
                 len_written++;
@@ -762,9 +762,9 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
             // write newly written to block back to disk
             virtual_disk_write_block(currBlock, &block);
             
-            //fp->n_data_blocks++;
+            fp->n_data_blocks++;
             //TODO: check that this is right. Not subtracting 1 due to setting next one in chain to the new BLOCK_REF
-            //fp->block_reference_cache[current_blocks-1] = new;
+            fp->block_reference_cache[current_blocks-1] = new;
             
             // for next loop:
             // TODO: check this. Before I had current_blocks++
