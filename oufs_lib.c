@@ -724,21 +724,22 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
          // TODO: do i need to write the block that i just alloated to disk?
          virtual_disk_write_block(startref, startblock);
          //fprintf(stderr, "wrote to disk(startref, &masterblock");
+         // TODO: check if this free() should be here
+         free(startblock);
          fp->n_data_blocks = 1;
          fp->block_reference_cache[0] = startref;
          //fprintf(stderr, "end of first loop where current_blocks == 0. n_data_blocks =  %d\n", fp->n_data_blocks);
      }
     
     BLOCK_REFERENCE currBlock;
+    // currBlock is reference to initial block connected to inode
     currBlock = inode.content;
     if (currBlock == UNALLOCATED_BLOCK)
         return -2;
     virtual_disk_read_block(currBlock, &block);
     //fprintf(stderr, "before for loop. inode.content =  %d\n", inode.content);
-    //BLOCK_REFERENCE new;
-    //BLOCK newBlock;
     BLOCK_REFERENCE new;
-    BLOCK newBlock;
+    BLOCK * newBlock = malloc(sizeof(BLOCK));
     
     while(len_written < len)
     {
@@ -749,9 +750,10 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
         // fewer bytes of space available in last block than need to be written
         if (free_bytes_in_last_block < bytes_left_to_write)
         {
+            // may not need this at all. Just trying to be safe.
+            virtual_disk_read_block(MASTER_BLOCK_REFERENCE, &master);
             for (int i=used_bytes_in_last_block; i<DATA_BLOCK_SIZE; i++)
             {
-                
                 block.content.data.data[i] = buf[i-used_bytes_in_last_block];
                 len_written++;
                 fp->offset++;
@@ -762,37 +764,47 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
             // check to see if number of blocks <= 100
             // allocate new block
             // TODO: check that this is assigning correctly. May be staying the same each time due to the function creating its own block_ref and assigning it to new with = operator
-            new = oufs_allocate_new_block(&master, &newBlock);
+            
+            // TODO: see if need to be using malloc for newBlock to be returned correctly
+            new = oufs_allocate_new_block(&master, newBlock);
+            
             fprintf(stderr, "new == %d\n", new);
             // TODO: check that this shouldn't return 0 or something
             if (new == UNALLOCATED_BLOCK)
                 return -2;
-            // write master block back to disk
+            // write master block back to disk - changed its unallocated_front
             virtual_disk_write_block(MASTER_BLOCK_REFERENCE, &master);
-            //fprintf(stderr, "block %d pointed to %d - now points to %d\n", currBlock, block.next_block, new);
+            fprintf(stderr, "block.next_block pointed to %d BEFORE adding new one to end\n", block.next_block);
             block.next_block = new;
-            virtual_disk_write_block(new, &newBlock);
-            // write newly written to block back to disk
+            fprintf(stderr, "block.next_block now points to %d AFTER adding new one to end\n", block.next_block);
+            //TODO: check if i need to use malloc for block or not
             virtual_disk_write_block(currBlock, &block);
+            virtual_disk_write_block(new, newBlock);
             
-            fp->n_data_blocks++;
-            //TODO: check that this is right. Not subtracting 1 due to setting next one in chain to the new BLOCK_REF
-            fp->block_reference_cache[current_blocks] = new;
-            // for next loop:
-
+            // recalculations for next loop:
             current_blocks = (fp->offset + DATA_BLOCK_SIZE - 1) / DATA_BLOCK_SIZE;
             used_bytes_in_last_block = fp->offset % DATA_BLOCK_SIZE;
             // free bytes should reset to 252
             free_bytes_in_last_block = DATA_BLOCK_SIZE - used_bytes_in_last_block;
             
+            fp->n_data_blocks++;
+            //TODO: check that this is right. Not subtracting 1 due to setting next one in chain to the new BLOCK_REF
+            fp->block_reference_cache[current_blocks] = new;
+            
             //TODO: currBLOCK is not changing correctly around here somewhere.
             // FIXME: fix this!
-            //currBlock = new;
-            memcpy(&currBlock, &new, sizeof(BLOCK_REFERENCE));
+            fprintf(stderr, "\tcurrBlock BEFORE shift to be new(reference): %d\n ", currBlock);
+            currBlock = new;
+            fprintf(stderr, "\tcurrBlock AFTER shift to be new(reference): %d\n ", currBlock);
+            //memcpy(&currBlock, &new, sizeof(BLOCK_REFERENCE));
             //TODO: check that this copy works
-            memcpy(&block, &newBlock, BLOCK_SIZE);
+            fprintf(stderr, "\tBefore memcpy to shift block to be newBlock: block.next_block is %d\n", block.next_block);
+            memset(&block, 0, BLOCK_SIZE);
+            memcpy(&block, newBlock, BLOCK_SIZE);
+            // After memcpy
+            fprintf(stderr, "\tAfter memcpy to shift block to be newBlock: block.next_block is %d\n", block.next_block);
             //block = newBlock;
-            memset(&newBlock, 0, BLOCK_SIZE);
+            memset(newBlock, 0, BLOCK_SIZE);
         }
         else    // whats left to write will fit in free space left in last block
         {
