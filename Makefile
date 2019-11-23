@@ -23,26 +23,26 @@ oufs_rmdir: oufs_rmdir.o $(libraries) $(includes)
 oufs_stats: oufs_stats.o $(libraries) $(includes) 
 	gcc oufs_stats.o $(libraries) -o oufs_stats
 
-oufs_touch: oufs_stats.o $(libraries) $(includes) 
-	gcc oufs_stats.o $(libraries) -o oufs_touch
+oufs_touch: oufs_touch.o $(libraries) $(includes) 
+	gcc oufs_touch.o $(libraries) -o oufs_touch
 
-oufs_append: oufs_stats.o $(libraries) $(includes) 
-	gcc oufs_stats.o $(libraries) -o oufs_append
+oufs_append: oufs_append.o $(libraries) $(includes) 
+	gcc oufs_append.o $(libraries) -o oufs_append
 
-oufs_cat: oufs_stats.o $(libraries) $(includes) 
-	gcc oufs_stats.o $(libraries) -o oufs_cat
+oufs_cat: oufs_cat.o $(libraries) $(includes) 
+	gcc oufs_cat.o $(libraries) -o oufs_cat
 
-oufs_create: oufs_stats.o $(libraries) $(includes) 
-	gcc oufs_stats.o $(libraries) -o oufs_create
+oufs_create: oufs_create.o $(libraries) $(includes) 
+	gcc oufs_create.o $(libraries) -o oufs_create
 
-oufs_copy: oufs_stats.o $(libraries) $(includes) 
-	gcc oufs_stats.o $(libraries) -o oufs_copy
+oufs_copy: oufs_copy.o $(libraries) $(includes) 
+	gcc oufs_copy.o $(libraries) -o oufs_copy
 
-oufs_link: oufs_stats.o $(libraries) $(includes) 
-	gcc oufs_stats.o $(libraries) -o oufs_link
+oufs_link: oufs_link.o $(libraries) $(includes) 
+	gcc oufs_link.o $(libraries) -o oufs_link
 
-oufs_remove: oufs_stats.o $(libraries) $(includes) 
-	gcc oufs_stats.o $(libraries) -o oufs_remove
+oufs_remove: oufs_remove.o $(libraries) $(includes) 
+	gcc oufs_remove.o $(libraries) -o oufs_remove
 
 .c.o:
 	gcc $(CFLAGS) $< -o $@
