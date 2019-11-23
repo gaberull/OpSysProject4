@@ -543,14 +543,14 @@ OUFILE* oufs_fopen(char *cwd, char *path, char *mode)
         int count = 0;
         BLOCK_REFERENCE b;
         b = inode.content;
-        BLOCK c;
-        virtual_disk_read_block(b, &c);
+        BLOCK *c = malloc(sizeof(BLOCK));
+        virtual_disk_read_block(b, c);
         while (b != UNALLOCATED_BLOCK)
         {
             file->block_reference_cache[count] = b;
             count++;
             virtual_disk_read_block(b, &c);
-            b = c.next_block;
+            b = c->next_block;
         }
         file->offset = 0;
         file->n_data_blocks = count;
