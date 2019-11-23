@@ -696,20 +696,14 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
     int bytes_left_to_write = -1;
     BLOCK master;
     virtual_disk_read_block(MASTER_BLOCK_REFERENCE, &master);
-    
+    fprintf(stderr, "top of fwrite. current_blocks ==   %d\n", current_blocks);
+    fprintf(stderr, "top of fwrite. free_bytes_in_last_block ==   %d\n", free_bytes_in_last_block);
+    fprintf(stderr, "fp->inode_reference ==   %d\n", fp->inode_reference);
+    fprintf(stderr, "initial fp->offset ==   %d\n", fp->offset);
     
      // TODO: ???? I believe I have to handle inode sizes of 0 seperately CHECK THIS
      if ((current_blocks == 0) && (len > 0))
      {
-         //BLOCK Gt;
-         //BLOCK_REFERENCE ggg;
-         //ggg = oufs_allocate_new_block(&master, &Gt);
-         //inode.content = ggg;
-         //virtual_disk_write_block(ggg, &Gt);
-         //virtual_disk_write_block(MASTER_BLOCK_REFERENCE, &master);
-         //oufs_write_inode_by_reference(fp->inode_reference, &inode);
-         //fp->n_data_blocks = 1;
-         
          BLOCK_REFERENCE startref;
          BLOCK startblock;
          startref = oufs_allocate_new_block(&master, &startblock);
