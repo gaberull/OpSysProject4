@@ -735,7 +735,9 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
     //fprintf(stderr, "before for loop. inode.content =  %d\n", inode.content);
     //BLOCK_REFERENCE new;
     //BLOCK newBlock;
-
+    BLOCK_REFERENCE new;
+    BLOCK newBlock;
+    
     while(len_written < len)
     {
         bytes_left_to_write = len - len_written;
@@ -757,8 +759,7 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
             }
             // check to see if number of blocks <= 100
             // allocate new block
-            BLOCK_REFERENCE new;
-            BLOCK newBlock;
+            
             new = oufs_allocate_new_block(&master, &newBlock);
             fprintf(stderr, "new == %d\n", new);
             // TODO: check that this shouldn't return 0 or something
@@ -775,9 +776,8 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
             fp->n_data_blocks++;
             //TODO: check that this is right. Not subtracting 1 due to setting next one in chain to the new BLOCK_REF
             fp->block_reference_cache[current_blocks] = new;
-            
             // for next loop:
-            // TODO: check this. Before I had current_blocks++
+
             current_blocks = (fp->offset + DATA_BLOCK_SIZE - 1) / DATA_BLOCK_SIZE;
             used_bytes_in_last_block = fp->offset % DATA_BLOCK_SIZE;
             // free bytes should reset to 252
@@ -787,8 +787,9 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
             // FIXME: fix this!
             currBlock = new;
             //TODO: check that this copy works
-            memcpy(&block, &newBlock, sizeof(BLOCK));
+            memcpy(&block, &newBlock, BLOCK_SIZE);
             //block = newBlock;
+            memset(&newBlock, 0, BLOCK_SIZE);
         }
         else    // whats left to write will fit in free space left in last block
         {
