@@ -717,7 +717,8 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
          virtual_disk_write_block(MASTER_BLOCK_REFERENCE, &master);
          // TODO: do i need to write the block that i just alloated to disk?
          virtual_disk_write_block(startref, &startblock);
-         //fp->n_data_blocks = 1;
+         fp->n_data_blocks = 1;
+         fprintf(stderr, "end of first loop where current_blocks == 0. n_data_blocks =  %d\n", fp->n_data_blocks);
      }
     
     BLOCK_REFERENCE currBlock;
@@ -725,19 +726,16 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
     if (currBlock == UNALLOCATED_BLOCK)
         return -2;
     virtual_disk_read_block(currBlock, &block);
-    
+    fprintf(stderr, "before for loop. inode.content =  %d\n", inode.content);
     BLOCK_REFERENCE new;
     BLOCK newBlock;
-    //for (int j=0; j<current_blocks; j++)
-    //{
-        
-    //}
     
     while(len_written < len)
     {
         bytes_left_to_write = len - len_written;
         
         //if (fp->n_data_blocks < )
+        fprintf(stderr, "Top of for loop byes_left_to_write ==   %d\n", bytes_left_to_write);
         
         // fewer bytes of space available in last block than need to be written
         if (free_bytes_in_last_block < bytes_left_to_write)
@@ -793,6 +791,9 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
                 len_written++;
                 fp->offset++;
                 inode.size++;
+                fprintf(stderr, "in bottom condition of for loop len_written =   %d\n", len_written);
+                fprintf(stderr, "in bottom condition of for loop fp->offset =   %d\n", fp->offset);
+                fprintf(stderr, "in bottom condition of for loop inode.size =   %d\n", inode.size);
             }
             virtual_disk_write_block(currBlock, &block);
         }
