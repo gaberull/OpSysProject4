@@ -781,8 +781,12 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
             // free bytes should reset to 252
             free_bytes_in_last_block = DATA_BLOCK_SIZE - used_bytes_in_last_block;
             
+            //TODO: currBLOCK is not changing correctly around here somewhere.
+            // FIXME: fix this!
             currBlock = new;
-            block = newBlock;
+            //TODO: check that this copy works
+            memcpy(&block, &newBlock, sizeof(BLOCK));
+            //block = newBlock;
         }
         else    // whats left to write will fit in free space left in last block
         {

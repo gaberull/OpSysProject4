@@ -328,7 +328,7 @@ int oufs_find_file(char *cwd, char * path, INODE_REFERENCE *parent, INODE_REFERE
             fprintf(stderr, "\tFound directory\n");
             //found subdirectory
             grandparent = *parent;
-            fprintf(stderr, "\tParent inode was %d next round will be %d\n", *parent, temp);
+            //fprintf(stderr, "\tParent inode was %d next round will be %d\n", *parent, temp);
             
             if(local_name!=NULL)
                 strcpy(local_name, directory_name);
@@ -376,7 +376,7 @@ int oufs_find_open_bit(unsigned char value)
     
     //fprintf(stderr, "inside oufs_find_open_bit 357");
     // handle no bits available
-    fprintf(stderr, "value is %x\n", value);
+    //fprintf(stderr, "value is %x\n", value);
     if ((value ^ 0xFF) == 0x00)
     {
         return -1;
@@ -386,7 +386,7 @@ int oufs_find_open_bit(unsigned char value)
     {
         for (int i=7; i>0; i--)
         {
-            fprintf(stderr, "\nvalue & (1<<i) is %x \n", (value & (1<<i)));
+            //fprintf(stderr, "\nvalue & (1<<i) is %x \n", (value & (1<<i)));
             if((value & (1<<i))==0)
             {
                 return i;
@@ -427,13 +427,13 @@ int oufs_allocate_new_directory(INODE_REFERENCE parent_reference)
         // TODO: must make sure find_open_bit works for this function to work
         //fprintf(stderr, "before find_open_bit in allocate_new_dir line 403");
         bit = oufs_find_open_bit(block.content.master.inode_allocated_flag[byte]);
-        fprintf(stderr, "\n bit is %d \n", bit);
+        //fprintf(stderr, "\n bit is %d \n", bit);
         if (bit != -1)
         {
             // INODE REFERENCE may be j*8 + (7-i)
             newdir = (INODE_REFERENCE)((7-bit) +(i));
-            fprintf(stderr, "\n i is %d \n", i);
-            fprintf(stderr, "\n newdir is %d \n", newdir);
+            //fprintf(stderr, "\n i is %d \n", i);
+            //fprintf(stderr, "\n newdir is %d \n", newdir);
             // TODO: make sure this shift works correctly
             
             block.content.master.inode_allocated_flag[byte] = (block.content.master.inode_allocated_flag[byte] | (1<<bit) );
