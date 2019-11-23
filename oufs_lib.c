@@ -694,12 +694,12 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
 
   // TODO
     // do this check whre the inode is loaded.
-                            /*
+    
     if(inode.size + len > (DATA_BLOCK_SIZE * MAX_BLOCKS_IN_FILE))
     {
         return 0;
     }
-                             */
+    
     // while we have more bytes to write, allocate new block, copy in some number of bytes ( either bytes left to copy or bytes left to get to end of block - whichever is less)
     
     int bytes_left_to_write = -1;
@@ -735,7 +735,7 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
     BLOCK tempBlock;
     currBlock = inode.content;
     // currBlock is reference to initial block connected to inode
-    // Loop to get the refrence of the last block in the chain of blocks connected to the file. Storing it in currBlock. 
+    // Loop to get the refrence of the last block in the chain of blocks connected to the file. Storing it in currBlock.
     while (1)
     {
         virtual_disk_read_block(currBlock, &tempBlock);
@@ -755,6 +755,13 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
     
     while(len_written < len)
     {
+        // check to make sure we haven't added the maximum number of blocks yet
+        if (fp->n_data_blocks == MAX_BLOCKS_IN_FILE)
+        {
+            fprintf(stderr, "in fwrite loop: Hit 100 blocks in fp. breaking");
+            // TODO: check if possibly return 0 here????
+            break;
+        }
         bytes_left_to_write = len - len_written;
         //if (fp->n_data_blocks < )
         //fprintf(stderr, "Top of for loop byes_left_to_write ==   %d\n", bytes_left_to_write);
