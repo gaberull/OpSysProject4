@@ -745,6 +745,7 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
                 len_written++;
                 fp->offset++;
                 inode.size++;
+                fprintf(stderr, "len_written ==  %d\n", len_written);
             }
             // allocate new block
             
@@ -789,9 +790,6 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
                 len_written++;
                 fp->offset++;
                 inode.size++;
-                fprintf(stderr, "in bottom condition of for loop len_written =   %d\n", len_written);
-                fprintf(stderr, "in bottom condition of for loop fp->offset =   %d\n", fp->offset);
-                fprintf(stderr, "in bottom condition of for loop inode.size =   %d\n", inode.size);
             }
             virtual_disk_write_block(currBlock, &block);
         }
