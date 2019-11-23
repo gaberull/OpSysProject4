@@ -732,8 +732,20 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
      }
     
     BLOCK_REFERENCE currBlock;
-    // currBlock is reference to initial block connected to inode
+    BLOCK tempBlock;
     currBlock = inode.content;
+    // currBlock is reference to initial block connected to inode
+    // Loop to get the refrence of the last block in the chain of blocks connected to the file. Storing it in currBlock. 
+    while (1)
+    {
+        virtual_disk_read_block(currBlock, &tempBlock);
+        if (tempBlock.next_block != UNALLOCATED_BLOCK)
+        {
+            currBlock = tempBlock.next_block;
+        }
+        else
+            break;
+    }
     if (currBlock == UNALLOCATED_BLOCK)
         return -2;
     virtual_disk_read_block(currBlock, &block);
@@ -794,6 +806,7 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
             //TODO: currBLOCK is not changing correctly around here somewhere.
             // FIXME: fix this!
             fprintf(stderr, "\tcurrBlock BEFORE shift to be new(reference): %d\n ", currBlock);
+            //TODO: this is showing up as 6 everytime???
             currBlock = new;
             fprintf(stderr, "\tcurrBlock AFTER shift to be new(reference): %d\n ", currBlock);
             //memcpy(&currBlock, &new, sizeof(BLOCK_REFERENCE));
