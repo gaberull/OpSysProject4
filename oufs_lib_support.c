@@ -651,14 +651,14 @@ BLOCK_REFERENCE oufs_allocate_new_block(BLOCK *master_block, BLOCK *new_block)
   // TODO
     BLOCK_REFERENCE front;
     front = master_block->content.master.unallocated_front;
-    fprintf(stderr, "inside allocate_new_block: master.unall.front before = %d\n", front);
+    fprintf(stderr, "inside allocate_new_block: master.unallocated front before shift = %d\n", front);
     //TODO: check to see if I need like a memset or memcpy to clear new_block before setting it
     virtual_disk_read_block(front, new_block);
     //fprintf(stderr, "inside allocate_new_b pointer &newblock is %d\n", new_block);
     /////
     //fprintf(stderr, "inside allocate_new_b new_block->next_block == %d\n", new_block->next_block);
     master_block->content.master.unallocated_front = new_block->next_block;
-    fprintf(stderr, "inside allocate_new_block: master.unall.front AFTER = %d\n", new_block->next_block);
+    fprintf(stderr, "inside allocate_new_block: master.unallocated front AFTER shift = %d\n", new_block->next_block);
     //fprintf(stderr, "inside allocate_new_b new_block->next_block == %d\n", new_block->next_block);
     new_block->next_block = UNALLOCATED_BLOCK;
     //fprintf(stderr, "made it to the end of allocate_new_block");
