@@ -694,10 +694,12 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
 
   // TODO
     // do this check whre the inode is loaded.
+                            /*
     if(inode.size + len > (DATA_BLOCK_SIZE * MAX_BLOCKS_IN_FILE))
     {
         return 0;
     }
+                             */
     // while we have more bytes to write, allocate new block, copy in some number of bytes ( either bytes left to copy or bytes left to get to end of block - whichever is less)
     
     int bytes_left_to_write = -1;
@@ -767,7 +769,7 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
                 return -2;
             // write master block back to disk
             virtual_disk_write_block(MASTER_BLOCK_REFERENCE, &master);
-            fprintf(stderr, "block %d pointed to %d - now points to %d\n", currBlock, block.next_block, new);
+            //fprintf(stderr, "block %d pointed to %d - now points to %d\n", currBlock, block.next_block, new);
             block.next_block = new;
             virtual_disk_write_block(new, &newBlock);
             // write newly written to block back to disk
