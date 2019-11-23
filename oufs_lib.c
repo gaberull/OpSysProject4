@@ -759,7 +759,7 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
             }
             // check to see if number of blocks <= 100
             // allocate new block
-            
+            // TODO: check that this is assigning correctly. May be staying the same each time due to the function creating its own block_ref and assigning it to new with = operator
             new = oufs_allocate_new_block(&master, &newBlock);
             fprintf(stderr, "new == %d\n", new);
             // TODO: check that this shouldn't return 0 or something
@@ -785,7 +785,8 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
             
             //TODO: currBLOCK is not changing correctly around here somewhere.
             // FIXME: fix this!
-            currBlock = new;
+            //currBlock = new;
+            memcpy(&currBlock, &new, sizeof(BLOCK_REFERENCE));
             //TODO: check that this copy works
             memcpy(&block, &newBlock, BLOCK_SIZE);
             //block = newBlock;
