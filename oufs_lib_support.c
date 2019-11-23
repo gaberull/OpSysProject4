@@ -664,6 +664,6 @@ BLOCK_REFERENCE oufs_allocate_new_block(BLOCK *master_block, BLOCK *new_block)
     
 
     // change this master block reference
-  return(front);
+  return front;
 }
 

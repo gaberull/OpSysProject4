@@ -763,7 +763,7 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
                 return -2;
             // write master block back to disk
             virtual_disk_write_block(MASTER_BLOCK_REFERENCE, &master);
-            fprintf(stderr, "block %d pointed to %d - now points to %d\n", block, block.next_block, new);
+            fprintf(stderr, "block %d pointed to %d - now points to %d\n", currBlock, block.next_block, new);
             block.next_block = new;
             virtual_disk_write_block(new, &newBlock);
             // write newly written to block back to disk
