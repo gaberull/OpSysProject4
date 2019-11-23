@@ -726,7 +726,8 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
         return -2;
     virtual_disk_read_block(currBlock, &block);
     
-    
+    BLOCK_REFERENCE new;
+    BLOCK newBlock;
     //for (int j=0; j<current_blocks; j++)
     //{
         
@@ -743,14 +744,14 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
         {
             for (int i=used_bytes_in_last_block; i<DATA_BLOCK_SIZE; i++)
             {
+                
                 block.content.data.data[i] = buf[i-used_bytes_in_last_block];
                 len_written++;
                 fp->offset++;
                 inode.size++;
             }
             // allocate new block
-            BLOCK_REFERENCE new;
-            BLOCK newBlock;
+            
             new = oufs_allocate_new_block(&master, &newBlock);
             // TODO: check that this shouldn't return 0 or something
             if (new == UNALLOCATED_BLOCK)
