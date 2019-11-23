@@ -707,10 +707,13 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
          BLOCK_REFERENCE startref;
          BLOCK startblock;
          startref = oufs_allocate_new_block(&master, &startblock);
+         fprintf(stderr, "startref ==   %d\n", startref);
          inode.content = startref;
          virtual_disk_write_block(MASTER_BLOCK_REFERENCE, &master);
+         fprintf(stderr, "wrote master block\n");
          // TODO: do i need to write the block that i just alloated to disk?
          virtual_disk_write_block(startref, &startblock);
+         fprintf(stderr, "wrote to disk(startref, &masterblock");
          fp->n_data_blocks = 1;
          fprintf(stderr, "end of first loop where current_blocks == 0. n_data_blocks =  %d\n", fp->n_data_blocks);
      }
