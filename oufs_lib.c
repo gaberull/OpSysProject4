@@ -733,8 +733,8 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
         return -2;
     virtual_disk_read_block(currBlock, &block);
     //fprintf(stderr, "before for loop. inode.content =  %d\n", inode.content);
-    BLOCK_REFERENCE new;
-    BLOCK newBlock;
+    //BLOCK_REFERENCE new;
+    //BLOCK newBlock;
 
     while(len_written < len)
     {
@@ -757,6 +757,8 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
             }
             // check to see if number of blocks <= 100
             // allocate new block
+            BLOCK_REFERENCE new;
+            BLOCK newBlock;
             new = oufs_allocate_new_block(&master, &newBlock);
             fprintf(stderr, "new == %d\n", new);
             // TODO: check that this shouldn't return 0 or something
