@@ -692,14 +692,20 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
   int len_written = 0;
 
   // TODO
+    // do this check whre the inode is loaded.
+    if(inode.size + len > (DATA_BLOCK_SIZE * MAX_BLOCKS_IN_FILE))
+    {
+        return 0;
+    }
     // while we have more bytes to write, allocate new block, copy in some number of bytes ( either bytes left to copy or bytes left to get to end of block - whichever is less)
+    
     int bytes_left_to_write = -1;
     BLOCK master;
     virtual_disk_read_block(MASTER_BLOCK_REFERENCE, &master);
-    fprintf(stderr, "top of fwrite. current_blocks ==   %d\n", current_blocks);
-    fprintf(stderr, "top of fwrite. free_bytes_in_last_block ==   %d\n", free_bytes_in_last_block);
-    fprintf(stderr, "fp->inode_reference ==   %d\n", fp->inode_reference);
-    fprintf(stderr, "initial fp->offset ==   %d\n", fp->offset);
+    //fprintf(stderr, "top of fwrite. current_blocks ==   %d\n", current_blocks);
+    //fprintf(stderr, "top of fwrite. free_bytes_in_last_block ==   %d\n", free_bytes_in_last_block);
+    //fprintf(stderr, "fp->inode_reference ==   %d\n", fp->inode_reference);
+    //fprintf(stderr, "initial fp->offset ==   %d\n", fp->offset);
     
      // TODO: ???? I believe I have to handle inode sizes of 0 seperately CHECK THIS
      if ((current_blocks == 0) && (len > 0))
@@ -708,15 +714,16 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
          //BLOCK startblock;
          BLOCK *startblock = malloc(sizeof(BLOCK));
          startref = oufs_allocate_new_block(&master, startblock);
-         fprintf(stderr, "startref ==   %d\n", startref);
+         //fprintf(stderr, "startref ==   %d\n", startref);
          inode.content = startref;
          virtual_disk_write_block(MASTER_BLOCK_REFERENCE, &master);
-         fprintf(stderr, "wrote master block\n");
+         //fprintf(stderr, "wrote master block\n");
          // TODO: do i need to write the block that i just alloated to disk?
          virtual_disk_write_block(startref, startblock);
-         fprintf(stderr, "wrote to disk(startref, &masterblock");
+         //fprintf(stderr, "wrote to disk(startref, &masterblock");
          fp->n_data_blocks = 1;
-         fprintf(stderr, "end of first loop where current_blocks == 0. n_data_blocks =  %d\n", fp->n_data_blocks);
+         fp->block_reference_cache[0] = startref;
+         //fprintf(stderr, "end of first loop where current_blocks == 0. n_data_blocks =  %d\n", fp->n_data_blocks);
      }
     
     BLOCK_REFERENCE currBlock;
@@ -724,16 +731,15 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
     if (currBlock == UNALLOCATED_BLOCK)
         return -2;
     virtual_disk_read_block(currBlock, &block);
-    fprintf(stderr, "before for loop. inode.content =  %d\n", inode.content);
+    //fprintf(stderr, "before for loop. inode.content =  %d\n", inode.content);
     BLOCK_REFERENCE new;
     BLOCK newBlock;
-    
+
     while(len_written < len)
     {
         bytes_left_to_write = len - len_written;
-        
         //if (fp->n_data_blocks < )
-        fprintf(stderr, "Top of for loop byes_left_to_write ==   %d\n", bytes_left_to_write);
+        //fprintf(stderr, "Top of for loop byes_left_to_write ==   %d\n", bytes_left_to_write);
         
         // fewer bytes of space available in last block than need to be written
         if (free_bytes_in_last_block < bytes_left_to_write)
@@ -745,10 +751,11 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
                 len_written++;
                 fp->offset++;
                 inode.size++;
-                fprintf(stderr, "len_written ==  %d\n", len_written);
+                //debug print statement
+                //fprintf(stderr, "len_written ==  %d\n", len_written);
             }
+            // check to see if number of blocks <= 100
             // allocate new block
-            
             new = oufs_allocate_new_block(&master, &newBlock);
             // TODO: check that this shouldn't return 0 or something
             if (new == UNALLOCATED_BLOCK)
@@ -762,7 +769,7 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
             
             fp->n_data_blocks++;
             //TODO: check that this is right. Not subtracting 1 due to setting next one in chain to the new BLOCK_REF
-            fp->block_reference_cache[current_blocks-1] = new;
+            fp->block_reference_cache[current_blocks] = new;
             
             // for next loop:
             // TODO: check this. Before I had current_blocks++
@@ -773,14 +780,6 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
             
             currBlock = new;
             block = newBlock;
-            
-            // TODO: check the below statement. Not sure about it
-            //if (fp->n_data_blocks > MAX_BLOCKS_IN_FILE)
-            //{
-            //    fp->n_data_blocks--;
-                // TODO: return 0 here when its full?? I don't understand.
-             //   break;
-            //}
         }
         else    // whats left to write will fit in free space left in last block
         {
