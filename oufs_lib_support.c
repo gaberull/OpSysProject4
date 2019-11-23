@@ -46,6 +46,7 @@ int oufs_deallocate_block(BLOCK *master_block, BLOCK_REFERENCE block_reference)
             return(-1);
         }
         
+        fprintf(stderr, "inside oufs_deallocate_block: deallocating block_reference %d\n", block_reference);
         prevEndBlock.next_block = block_reference;
         
         if(virtual_disk_write_block(prevEnd, &prevEndBlock) != 0) {
