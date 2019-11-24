@@ -549,7 +549,7 @@ OUFILE* oufs_fopen(char *cwd, char *path, char *mode)
         {
             file->block_reference_cache[count] = b;
             count++;
-            virtual_disk_read_block(b, &c);
+            virtual_disk_read_block(b, c);
             b = c->next_block;
         }
         file->offset = 0;
