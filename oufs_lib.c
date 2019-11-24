@@ -695,10 +695,10 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
   // TODO
     // do this check whre the inode is loaded.
     
-    if(inode.size + len > (DATA_BLOCK_SIZE * MAX_BLOCKS_IN_FILE))
-    {
-        return 0;
-    }
+    //if(inode.size + len > (DATA_BLOCK_SIZE * MAX_BLOCKS_IN_FILE))
+    //{
+    //    return 0;
+    //}
     
     // while we have more bytes to write, allocate new block, copy in some number of bytes ( either bytes left to copy or bytes left to get to end of block - whichever is less)
     
