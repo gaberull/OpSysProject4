@@ -903,10 +903,12 @@ int oufs_fread(OUFILE *fp, unsigned char * buf, int len)
 
   // TODO
     // TODO: check if this should be here or later, or both??
+    fprintf(stderr, "inside fread()\n");
     if (fp->offset == inode.size)
     {
         return 0;
     }
+    fprintf(stderr, "did not return yet, fp->offset != inode.size");
     // read len bytes from the file (len is min of len, other thing)
     
     // read first data block from inode
@@ -947,7 +949,7 @@ int oufs_fread(OUFILE *fp, unsigned char * buf, int len)
                 len_left--;
                 len_read++;
                 fp->offset++;
-                fprintf(stderr, "inside loop for len_read > bytes left in block\n");
+                fprintf(stderr, "FREAD: inside loop for len_read > bytes left in block\n");
                 fprintf(stderr, "byte offset in block = %d\n", byte_offset_in_block);
                 fprintf(stderr, "buf[%d] = block.data[%d]\n", len_read, i);
                 fprintf(stderr, "len_left is %d\n", len_left);
