@@ -622,14 +622,14 @@ OUFILE* oufs_fopen(char *cwd, char *path, char *mode)
             int count = 0;
             BLOCK_REFERENCE b;
             b = inode.content;
-            BLOCK c;
+            BLOCK *c = malloc(sizeof(BLOCK));
             
             while (b != UNALLOCATED_BLOCK)
             {
                 file->block_reference_cache[count] = b;
                 count++;
-                virtual_disk_read_block(b, &c);
-                b = c.next_block;
+                virtual_disk_read_block(b, c);
+                b = c->next_block;
             }
             file->n_data_blocks = count;
         }
@@ -923,7 +923,7 @@ int oufs_fread(OUFILE *fp, unsigned char * buf, int len)
     // now I have the correct data block in block
     while (len_read < len)
     {
-        if (len_left < (BLOCK_SIZE - byte_offset_in_block))
+        if (len_left <= (BLOCK_SIZE - byte_offset_in_block))
         {
             // read all remaining bytes in len_left
             int start = BLOCK_SIZE - byte_offset_in_block;
