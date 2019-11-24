@@ -755,13 +755,19 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
     
     while(len_written < len)
     {
+    
+    /*     TODO: check to see if need to add check towards end of this loop to see if allocating a
+     *     newblock would put it over the 100 limit. If so, fild out how best to break. (tricky)
+     */
+        
+        
         // check to make sure we haven't added the maximum number of blocks yet
-        if (fp->n_data_blocks == MAX_BLOCKS_IN_FILE)
-        {
-            fprintf(stderr, "in fwrite loop: Hit 100 blocks in fp. breaking");
+        //if (fp->n_data_blocks > MAX_BLOCKS_IN_FILE)
+        //{
+        //    fprintf(stderr, "in fwrite loop: Hit 100 blocks in fp. breaking");
             // TODO: check if possibly return 0 here????
-            break;
-        }
+         //   break;
+        //}
         bytes_left_to_write = len - len_written;
         //if (fp->n_data_blocks < )
         //fprintf(stderr, "Top of for loop byes_left_to_write ==   %d\n", bytes_left_to_write);
@@ -773,7 +779,10 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
             virtual_disk_read_block(MASTER_BLOCK_REFERENCE, &master);
             for (int i=used_bytes_in_last_block; i<DATA_BLOCK_SIZE; i++)
             {
-                block.content.data.data[i] = buf[i-used_bytes_in_last_block];
+                
+                block.content.data.data[i] = buf[len_written];
+                // changing above line to one below; TODO: check this
+                //block.content.data.data[i] = buf[len_written];
                 len_written++;
                 fp->offset++;
                 inode.size++;
@@ -830,7 +839,8 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
         {
             for (int i=used_bytes_in_last_block; i<(used_bytes_in_last_block + bytes_left_to_write); i++)
             {
-                block.content.data.data[i] = buf[i-used_bytes_in_last_block];
+                // TODO: check. changed below line from block.content.data.data[i] = buf[i-used_bytes_in_last_block];
+                block.content.data.data[i] = buf[len_written];
                 len_written++;
                 fp->offset++;
                 inode.size++;
@@ -892,7 +902,62 @@ int oufs_fread(OUFILE *fp, unsigned char * buf, int len)
   int len_left = len;
 
   // TODO
-
+    // TODO: check if this should be here or later, or both??
+    if (fp->offset == inode.size)
+    {
+        return 0;
+    }
+    // read len bytes from the file (len is min of len, other thing)
+    // get correct block in chain of blocks
+    // read first data block from inode
+    BLOCK_REFERENCE currentRef = inode.content;     // mab=ybe put error if UNALLOCATED
+    if (currentRef == UNALLOCATED_BLOCK)
+        return -2;
+    for (int i=0; i<current_block; i++)
+    {
+        virtual_disk_read_block(currentRef, &block);
+        currentRef = block.next_block;
+    }
+    // Cases: 1)block_size contains all the bytes needed to read len bytes. Or 2)len is bigger than block_size - byte_offset_in_block
+    // now I have the correct data block in block
+    while (len_left < len)
+    {
+        if (len_left < (BLOCK_SIZE - byte_offset_in_block))
+        {
+            // read all remaining bytes in len_left
+            for (int i=(BLOCK_SIZE - byte_offset_in_block); i<len_left; i++)
+            {
+                // could also do buf[len_read]
+                buf[len-len_left] = block.content.data.data[i];
+                len_left--;
+                len_read++;
+                fp->offset++;
+            }
+        }
+        else        // will have to grab the next block
+        {
+            //int i = (BLOCK_SIZE - )
+            for (int i=(BLOCK_SIZE - byte_offset_in_block); i<BLOCK_SIZE; i++)
+            {
+                // this should start at 0 for buff and in correct place in block  for block
+                buf[len-len_left] = block.content.data.data[i];
+                len_left--;
+                len_read++;
+                fp->offset++;
+            }
+            // might chek to make  sure currentRef isn't UNALLOCATED_BLOCK but shouldn't be if len and such numbers are correct
+            // move to next block
+            if (currentRef == UNALLOCATED_BLOCK)
+            {
+                // nore more blocks left to  grab
+                fprintf(stderr, "no blocks remaining in file\n");
+                return (len_read);
+            }
+            virtual_disk_read_block(currentRef, &block);
+            currentRef = block.next_block;
+        }
+    }
+    
   // Done
   return(len_read);
 }
