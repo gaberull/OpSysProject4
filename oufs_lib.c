@@ -959,6 +959,8 @@ int oufs_fread(OUFILE *fp, unsigned char * buf, int len)
             virtual_disk_read_block(currentRef, &block);
             currentRef = block.next_block;
         }
+        // recalculate things that I use for next loop
+        byte_offset_in_block = fp->offset % DATA_BLOCK_SIZE;
     }
     
   // Done
