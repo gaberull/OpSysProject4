@@ -29,19 +29,13 @@ int main(int argc, char** argv) {
     fprintf(stderr, "Usage: oufs_cat <file name>\n");
   }else{
     OUFILE *fp = oufs_fopen(cwd, argv[1], "r");
-      //////// DEBUGGING CODE
-      fprintf(stderr, "CAT FUNCTION: fp->n_data_blocks = %d", fp->n_data_blocks);
-      
-      //////////////// END OF DEBUG CODE - REMOVE THIS
     unsigned char buf[BUF_SIZE];
     if(fp != NULL) {
       // Successfully opened the file for reading
-        fprintf(stderr, "CAT FUNCTION: successfully opened file for reading\n");
       int n;
       // Loop until the contents of the file are all printed to STDOUT
       while((n = oufs_fread(fp, buf, BUF_SIZE)) != 0) {
 	write(1, buf, n);
-          fprintf(stderr, "CAT FUNCTION: Did a write with n = %d\n", n);
       }
 
       // Clean up
