@@ -879,7 +879,7 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
  * 
  */
 
-int ooufs_fread(OUFILE *fp, unsigned char * buf, int len)
+int oufs_fread(OUFILE *fp, unsigned char * buf, int len)
 {
   // Check open mode
   if(fp->mode != 'r') {
