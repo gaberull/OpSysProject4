@@ -556,6 +556,8 @@ OUFILE* oufs_fopen(char *cwd, char *path, char *mode)
         file->n_data_blocks = count;
         file->inode_reference = child;
         file->mode = 'r';
+        fprintf(stderr, "inside fopen for read: n_data_blocks = %d\n", file->n_data_blocks);
+        //fprintf(stderr, "inside fopen for read: n_data_blocks = %d\n", file->n_data_blocks);
 
         //////
     }
@@ -877,7 +879,7 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
  * 
  */
 
-int oufs_fread(OUFILE *fp, unsigned char * buf, int len)
+int ooufs_fread(OUFILE *fp, unsigned char * buf, int len)
 {
   // Check open mode
   if(fp->mode != 'r') {
@@ -939,6 +941,7 @@ int oufs_fread(OUFILE *fp, unsigned char * buf, int len)
                 //changed below from buf[len - len_left]
                 // TODO: make sure can copy this over this way. Might have to do strcpy or something
                 buf[len_read] = block.content.data.data[i];
+                fprintf(stderr, "inside fread: wrote to buf[%d] = %d\n", len_read, block.content.data.data[i]);
                 len_left--;
                 len_read++;
                 fp->offset++;
@@ -967,7 +970,7 @@ int oufs_fread(OUFILE *fp, unsigned char * buf, int len)
             if (currentRef == UNALLOCATED_BLOCK)
             {
                 // nore more blocks left to  grab
-                fprintf(stderr, "no blocks remaining in file\n");
+                fprintf(stderr, "no blocks remaining in file. returning len_read = %d\n", len_read);
                 return (len_read);
             }
             virtual_disk_read_block(currentRef, &block);
@@ -978,6 +981,7 @@ int oufs_fread(OUFILE *fp, unsigned char * buf, int len)
     }
     
   // Done
+    fprintf(stderr, "Made it to end of fread(): returning %d\n", len_read);
   return(len_read);
 }
 
