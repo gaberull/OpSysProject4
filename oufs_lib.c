@@ -727,7 +727,7 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
          virtual_disk_write_block(startref, startblock);
          //fprintf(stderr, "wrote to disk(startref, &masterblock");
          // TODO: check if this free() should be here
-         free(startblock);
+         //free(startblock);
          fp->n_data_blocks = 1;
          fp->block_reference_cache[0] = startref;
          //fprintf(stderr, "end of first loop where current_blocks == 0. n_data_blocks =  %d\n", fp->n_data_blocks);
@@ -914,7 +914,7 @@ int oufs_fread(OUFILE *fp, unsigned char * buf, int len)
         fprintf(stderr, "in fread(): At end of file\n");
         return 0;
     }
-    fprintf(stderr, "did not return yet, fp->offset != inode.size");
+    fprintf(stderr, "inside fread(): did not return yet, fp->offset != inode.size\n");
     // read len bytes from the file (len is min of len, other thing)
     
     // read first data block from inode
@@ -934,11 +934,22 @@ int oufs_fread(OUFILE *fp, unsigned char * buf, int len)
     // now I have the correct data block in block
     while (len_read < len)
     {
+        // if whats left to write will fit inside whats left of the last block
         if (len_left <= (BLOCK_SIZE - byte_offset_in_block))
         {
             // read all remaining bytes in len_left
             int start = byte_offset_in_block;
             int finish = byte_offset_in_block + len_left;
+            
+                /*
+            memcpy(buf, &block.content.data.data[byte_offset_in_block], len_left);
+            len_left = 0;
+            len_read += len_left;
+            fp->offset += len_left;
+            buf += len_left;
+                 */
+            
+            
             for (int i=start; i<finish; i++)
             {
                 //changed below from buf[len - len_left]
