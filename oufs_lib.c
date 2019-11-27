@@ -905,7 +905,10 @@ int oufs_fread(OUFILE *fp, unsigned char * buf, int len)
 
   // TODO
     // TODO: check if this should be here or later, or both??
+    
     fprintf(stderr, "inside fread()\n");
+    fprintf(stderr, "inside fread(): fp->offset == %d\n", fp->offset);
+    fprintf(stderr, "inside fread(): inode.size == %d\n", inode.size);
     if (fp->offset == inode.size)
     {
         fprintf(stderr, "in fread(): At end of file\n");
