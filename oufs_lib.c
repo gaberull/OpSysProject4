@@ -906,20 +906,24 @@ int oufs_fread(OUFILE *fp, unsigned char * buf, int len)
     fprintf(stderr, "inside fread()\n");
     if (fp->offset == inode.size)
     {
+        fprintf(stderr, "in fread(): At end of file\n");
         return 0;
     }
     fprintf(stderr, "did not return yet, fp->offset != inode.size");
     // read len bytes from the file (len is min of len, other thing)
     
     // read first data block from inode
-    BLOCK_REFERENCE currentRef = inode.content;     // mab=ybe put error if UNALLOCATED
+    BLOCK_REFERENCE currentRef = inode.content;
     if (currentRef == UNALLOCATED_BLOCK)
         return -2;
     // get correct block in chain of blocks
-    for (int i=0; i<current_block; i++)
+    if (current_block > 0)
     {
-        virtual_disk_read_block(currentRef, &block);
-        currentRef = block.next_block;
+        for (int i=0; i<current_block; i++)
+        {
+            virtual_disk_read_block(currentRef, &block);
+            currentRef = block.next_block;
+        }
     }
     // Cases: 1)block_size contains all the bytes needed to read len bytes. Or 2)len is bigger than block_size - byte_offset_in_block
     // now I have the correct data block in block
@@ -928,21 +932,22 @@ int oufs_fread(OUFILE *fp, unsigned char * buf, int len)
         if (len_left <= (BLOCK_SIZE - byte_offset_in_block))
         {
             // read all remaining bytes in len_left
-            int start = BLOCK_SIZE - byte_offset_in_block;
-            int finish = BLOCK_SIZE - byte_offset_in_block + len_left;
+            int start = byte_offset_in_block;
+            int finish = byte_offset_in_block + len_left;
             for (int i=start; i<finish; i++)
             {
                 //changed below from buf[len - len_left]
+                // TODO: make sure can copy this over this way. Might have to do strcpy or something
                 buf[len_read] = block.content.data.data[i];
                 len_left--;
                 len_read++;
                 fp->offset++;
             }
         }
-        else        // will have to grab the next block
+        else        // Not enough space in block. We will have to grab the next block
         {
             
-            for (int i=(BLOCK_SIZE - byte_offset_in_block); i<BLOCK_SIZE; i++)
+            for (int i=byte_offset_in_block; i<BLOCK_SIZE; i++)
             {
                 // this should start at 0 for buff and in correct place in block  for block
                 buf[len_read] = block.content.data.data[i];
@@ -958,6 +963,7 @@ int oufs_fread(OUFILE *fp, unsigned char * buf, int len)
             }
             // might chek to make  sure currentRef isn't UNALLOCATED_BLOCK but shouldn't be if len and such numbers are correct
             // move to next block
+            // currentRef is already pointing to block.next_block from earlier loop
             if (currentRef == UNALLOCATED_BLOCK)
             {
                 // nore more blocks left to  grab
