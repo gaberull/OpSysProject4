@@ -697,7 +697,7 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
   // TODO
     for (int i=0; i<BLOCK_SIZE; i++)
     {
-        fprintf(stderr, "fwrite: BUF[%d] == %d\n", i, buf[i]);
+        fprintf(stderr, "BBBBBBBBBBB fwrite: BUF[%d] == %d\n", i, buf[i]);
     }
     // do this check whre the inode is loaded.
     
