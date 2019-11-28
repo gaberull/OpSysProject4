@@ -785,6 +785,11 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
         {
             // may not need this at all. Just trying to be safe.
             virtual_disk_read_block(MASTER_BLOCK_REFERENCE, &master);
+            memcpy(&block.content.data.data[used_bytes_in_last_block], &buf[len_written], free_bytes_in_last_block);
+            len_written += free_bytes_in_last_block;
+            fp->offset += free_bytes_in_last_block;
+            inode.size += free_bytes_in_last_block;
+                                    /*
             for (int i=used_bytes_in_last_block; i<DATA_BLOCK_SIZE; i++)
             {
                 
@@ -798,6 +803,7 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
                 //debug print statement
                 //fprintf(stderr, "len_written ==  %d\n", len_written);
             }
+                                     */
             // check to see if number of blocks <= 100
             // allocate new block
             // TODO: check that this is assigning correctly. May be staying the same each time due to the function creating its own block_ref and assigning it to new with = operator
@@ -846,6 +852,11 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
         }
         else    // whats left to write will fit in free space left in last block
         {
+            memcpy(&block.content.data.data[used_bytes_in_last_block], &buf[len_written], bytes_left_to_write);
+            len_written += bytes_left_to_write;
+            fp->offset += bytes_left_to_write;
+            inode.size += bytes_left_to_write;
+                                /*
             for (int i=used_bytes_in_last_block; i<(used_bytes_in_last_block + bytes_left_to_write); i++)
             {
                 // TODO: check. changed below line from block.content.data.data[i] = buf[i-used_bytes_in_last_block];
@@ -857,6 +868,7 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
                 //fprintf(stderr, "FWRITE: block will hold data, inode.size == %d\n", inode.size);
                 //fprintf(stderr, "FWRITE: Loops #%d bytes left to write = %d\n", i, bytes_left_to_write);
             }
+                                 */
             virtual_disk_write_block(currBlock, &block);
         }
     }
