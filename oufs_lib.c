@@ -932,8 +932,8 @@ int oufs_fread(OUFILE *fp, unsigned char * buf, int len)
     }
     // Cases: 1)block_size contains all the bytes needed to read len bytes. Or 2)len is bigger than block_size - byte_offset_in_block
     // now I have the correct data block in block
-    unsigned char * placeholder = NULL;
-    *placeholder = *buf;
+    //unsigned char * placeholder = NULL;
+    //*placeholder = *buf;
     while (len_read < len)
     {
         // if whats left to write will fit inside whats left of the last block
