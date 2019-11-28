@@ -790,6 +790,7 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
                 len_written++;
                 fp->offset++;
                 inode.size++;
+                fprintf(stderr, "fwrite: block.data[%d] = buf[%d] = %c\n", i, len_written, buf[len_written]);
                 //debug print statement
                 //fprintf(stderr, "len_written ==  %d\n", len_written);
             }
@@ -1002,7 +1003,6 @@ int oufs_fread(OUFILE *fp, unsigned char * buf, int len)
             fp->offset += (BLOCK_SIZE - byte_offset_in_block);
                                          */
             
-            
             for (int i=byte_offset_in_block; i<BLOCK_SIZE; i++)
             {
                 // this should start at 0 for buff and in correct place in block  for block
@@ -1027,6 +1027,7 @@ int oufs_fread(OUFILE *fp, unsigned char * buf, int len)
             }
             virtual_disk_read_block(currentRef, &block);
             currentRef = block.next_block;
+            fprintf(stderr, "**** BLOCK %d ****\n", currentRef);
         }
         // recalculate things that I use for next loop
         byte_offset_in_block = fp->offset % DATA_BLOCK_SIZE;
