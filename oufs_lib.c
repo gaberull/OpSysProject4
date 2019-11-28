@@ -695,6 +695,10 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
   int len_written = 0;
 
   // TODO
+    for (int i=0; i<BLOCK_SIZE; i++)
+    {
+        fprintf(stderr, "fwrite: BUF[%d] == %d\n", i, buf[i]);
+    }
     // do this check whre the inode is loaded.
     
     //if(inode.size + len > (DATA_BLOCK_SIZE * MAX_BLOCKS_IN_FILE))
