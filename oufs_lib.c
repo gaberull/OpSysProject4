@@ -928,22 +928,28 @@ int oufs_fread(OUFILE *fp, unsigned char * buf, int len)
     fprintf(stderr, "inside fread(): Initial Block_reference is %d\n", currentRef);
     if (currentRef == UNALLOCATED_BLOCK)
         return -2;
+   
     // get correct block in chain of blocks
     if (current_block > 0)
     {
         for (int i=0; i<current_block; i++)
         {
             virtual_disk_read_block(currentRef, &block);
-            ///////// printing for debugging - remove
-            for (int i=0; i<DATA_BLOCK_SIZE; i++)
-            {
-                fprintf(stderr, "BLOCK # %d byte %d is %d\n", currentRef, i, block.content.data.data[i]);
-                
-            }
-            //////////// remove above
+            
             currentRef = block.next_block;
         }
     }
+    else
+    {
+        virtual_disk_read_block(currentRef, &block);
+    }
+    ///////// printing for debugging - remove
+    for (int i=0; i<DATA_BLOCK_SIZE; i++)
+    {
+        fprintf(stderr, "BLOCK # %d byte %d is %d\n", currentRef, i, block.content.data.data[i]);
+        
+    }
+    //////////// remove above
     
     // Cases: 1)block_size contains all the bytes needed to read len bytes. Or 2)len is bigger than block_size - byte_offset_in_block
     // now I have the correct data block in block
