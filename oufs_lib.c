@@ -849,6 +849,7 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
                 len_written++;
                 fp->offset++;
                 inode.size++;
+                fprintf(stderr, "fwrite: block.data[%d] = buf[%d] = %c\n", i, len_written, buf[len_written]);
                 //fprintf(stderr, "FWRITE: block will hold data, inode.size == %d\n", inode.size);
                 //fprintf(stderr, "FWRITE: Loops #%d bytes left to write = %d\n", i, bytes_left_to_write);
             }
