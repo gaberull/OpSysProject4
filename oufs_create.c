@@ -24,6 +24,7 @@ int main(int argc, char** argv) {
     if(fp != NULL) {
       int n;
       while((n = read(0, buf, BUF_SIZE)) != 0) {
+          fprintf(stderr, "in create main: n == %d\n", n);
 	oufs_fwrite(fp, buf, n);
       }
     
