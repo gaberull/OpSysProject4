@@ -997,7 +997,12 @@ int oufs_fread(OUFILE *fp, unsigned char * buf, int len)
             placeholder += len_left;
                              */
             
+            memcpy(&block.content.data.data[len_read], &block.content.data.data[byte_offset_in_block], len_left);
+            len_left -= len_left;
+            len_read += len_left;
+            fp->offset += len_left;
             
+                                /*
             for (int i=start; i<finish; i++)
             {
                 //changed below from buf[len - len_left]
@@ -1008,6 +1013,7 @@ int oufs_fread(OUFILE *fp, unsigned char * buf, int len)
                 len_read++;
                 fp->offset++;
             }
+                                 */
             
         }
         else        // Not enough space in block. We will have to grab the next block
@@ -1020,6 +1026,12 @@ int oufs_fread(OUFILE *fp, unsigned char * buf, int len)
             fp->offset += (BLOCK_SIZE - byte_offset_in_block);
                                          */
             
+            memcpy(&buf[len_read], &block.content.data.data[byte_offset_in_block], (BLOCK_SIZE - byte_offset_in_block));
+            len_left -= (BLOCK_SIZE - byte_offset_in_block);
+            len_read += (BLOCK_SIZE - byte_offset_in_block);
+            fp->offset += (BLOCK_SIZE - byte_offset_in_block);
+            
+                                        /*
             for (int i=byte_offset_in_block; i<BLOCK_SIZE; i++)
             {
                 // this should start at 0 for buff and in correct place in block  for block
@@ -1032,6 +1044,7 @@ int oufs_fread(OUFILE *fp, unsigned char * buf, int len)
                 fprintf(stderr, "len_left is %d\n", len_left);
                 fprintf(stderr, "len_read is %d\n", len_read);
             }
+                                         */
             
             // might chek to make  sure currentRef isn't UNALLOCATED_BLOCK but shouldn't be if len and such numbers are correct
             // move to next block
