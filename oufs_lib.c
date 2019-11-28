@@ -704,7 +704,7 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
     
     // while we have more bytes to write, allocate new block, copy in some number of bytes ( either bytes left to copy or bytes left to get to end of block - whichever is less)
     
-    int bytes_left_to_write = -1;
+    int bytes_left_to_write = 0;
     BLOCK master;
     virtual_disk_read_block(MASTER_BLOCK_REFERENCE, &master);
     //fprintf(stderr, "top of fwrite. current_blocks ==   %d\n", current_blocks);
@@ -772,6 +772,7 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
          //   break;
         //}
         bytes_left_to_write = len - len_written;
+        
         //if (fp->n_data_blocks < )
         //fprintf(stderr, "Top of for loop byes_left_to_write ==   %d\n", bytes_left_to_write);
         
@@ -848,6 +849,7 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
                 fp->offset++;
                 inode.size++;
                 fprintf(stderr, "FWRITE: block will hold data, inode.size == %d\n", inode.size);
+                fprintf(stderr, "FWRITE: Loops #%d bytes left to write = %d\n", i, bytes_left_to_write);
             }
             virtual_disk_write_block(currBlock, &block);
         }
