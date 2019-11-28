@@ -800,7 +800,7 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
             // TODO: see if need to be using malloc for newBlock to be returned correctly
             new = oufs_allocate_new_block(&master, newBlock);
             
-            fprintf(stderr, "new == %d\n", new);
+            //fprintf(stderr, "new == %d\n", new);
             // TODO: check that this shouldn't return 0 or something
             if (new == UNALLOCATED_BLOCK)
                 return -2;
@@ -825,17 +825,17 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
             
             //TODO: currBLOCK is not changing correctly around here somewhere.
             // FIXME: fix this!
-            fprintf(stderr, "\tcurrBlock BEFORE shift to be new(reference): %d\n ", currBlock);
+            //fprintf(stderr, "\tcurrBlock BEFORE shift to be new(reference): %d\n ", currBlock);
             //TODO: this is showing up as 6 everytime???
             currBlock = new;
-            fprintf(stderr, "\tcurrBlock AFTER shift to be new(reference): %d\n ", currBlock);
+            //fprintf(stderr, "\tcurrBlock AFTER shift to be new(reference): %d\n ", currBlock);
             //memcpy(&currBlock, &new, sizeof(BLOCK_REFERENCE));
             //TODO: check that this copy works
-            fprintf(stderr, "\tBefore memcpy to shift block to be newBlock: block.next_block is %d\n", block.next_block);
+            //fprintf(stderr, "\tBefore memcpy to shift block to be newBlock: block.next_block is %d\n", block.next_block);
             memset(&block, 0, sizeof(BLOCK));
             memcpy(&block, newBlock, sizeof(BLOCK));
             // After memcpy
-            fprintf(stderr, "\tAfter memcpy to shift block to be newBlock: block.next_block is %d\n", block.next_block);
+            //fprintf(stderr, "\tAfter memcpy to shift block to be newBlock: block.next_block is %d\n", block.next_block);
             //block = newBlock;
             memset(newBlock, 0, BLOCK_SIZE);
         }
@@ -848,8 +848,8 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
                 len_written++;
                 fp->offset++;
                 inode.size++;
-                fprintf(stderr, "FWRITE: block will hold data, inode.size == %d\n", inode.size);
-                fprintf(stderr, "FWRITE: Loops #%d bytes left to write = %d\n", i, bytes_left_to_write);
+                //fprintf(stderr, "FWRITE: block will hold data, inode.size == %d\n", inode.size);
+                //fprintf(stderr, "FWRITE: Loops #%d bytes left to write = %d\n", i, bytes_left_to_write);
             }
             virtual_disk_write_block(currBlock, &block);
         }
@@ -920,7 +920,6 @@ int oufs_fread(OUFILE *fp, unsigned char * buf, int len)
         fprintf(stderr, "in fread(): At end of file\n");
         return 0;
     }
-    fprintf(stderr, "inside fread(): did not return yet, fp->offset != inode.size\n");
     // read len bytes from the file (len is min of len, other thing)
     
     // read first data block from inode
@@ -930,6 +929,7 @@ int oufs_fread(OUFILE *fp, unsigned char * buf, int len)
         return -2;
    
     // get correct block in chain of blocks
+    
     if (current_block > 0)
     {
         for (int i=0; i<current_block; i++)
@@ -939,17 +939,23 @@ int oufs_fread(OUFILE *fp, unsigned char * buf, int len)
             currentRef = block.next_block;
         }
     }
-    else
+    else      // current_block == 0
     {
         virtual_disk_read_block(currentRef, &block);
+        currentRef = block.next_block;
     }
-    ///////// printing for debugging - remove
-    for (int i=0; i<DATA_BLOCK_SIZE; i++)
+                         
+    // test this do-while loop.
+                            /*
+    int thisBlock = 0;
+    do
     {
-        fprintf(stderr, "BLOCK # %d byte %d is %d\n", currentRef, i, block.content.data.data[i]);
-        
+        virtual_disk_read_block(currentRef, &block);
+        currentRef = block.next_block;
+        thisBlock++;
     }
-    //////////// remove above
+    while (thisBlock < current_block);
+                             */
     
     // Cases: 1)block_size contains all the bytes needed to read len bytes. Or 2)len is bigger than block_size - byte_offset_in_block
     // now I have the correct data block in block
