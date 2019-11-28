@@ -962,7 +962,7 @@ int oufs_fread(OUFILE *fp, unsigned char * buf, int len)
                 //changed below from buf[len - len_left]
                 // TODO: make sure can copy this over this way. Might have to do strcpy or something
                 buf[len_read] = block.content.data.data[i];
-                fprintf(stderr, "inside fread: wrote to buf[%d] = %d\n", len_read, block.content.data.data[i]);
+                fprintf(stderr, "inside fread: wrote to buf[%d] = %c\n", len_read, block.content.data.data[i]);
                 len_left--;
                 len_read++;
                 fp->offset++;
