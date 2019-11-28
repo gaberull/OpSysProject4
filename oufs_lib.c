@@ -932,7 +932,8 @@ int oufs_fread(OUFILE *fp, unsigned char * buf, int len)
     }
     // Cases: 1)block_size contains all the bytes needed to read len bytes. Or 2)len is bigger than block_size - byte_offset_in_block
     // now I have the correct data block in block
-    unsigned char * placeholder = buf;
+    unsigned char * placeholder = NULL;
+    *placeholder = *buf;
     while (len_read < len)
     {
         // if whats left to write will fit inside whats left of the last block
@@ -943,14 +944,14 @@ int oufs_fread(OUFILE *fp, unsigned char * buf, int len)
             int finish = byte_offset_in_block + len_left;
             
             
-            
+                            /*
             memcpy(placeholder, &block.content.data.data[byte_offset_in_block], len_left);
             len_left = 0;
             len_read += len_left;
             fp->offset += len_left;
             placeholder += len_left;
+                             */
             
-                                                /*
             
             for (int i=start; i<finish; i++)
             {
@@ -962,18 +963,19 @@ int oufs_fread(OUFILE *fp, unsigned char * buf, int len)
                 len_read++;
                 fp->offset++;
             }
-                                                 */
+            
         }
         else        // Not enough space in block. We will have to grab the next block
         {
-            
+                                        /*
            memcpy(placeholder, &block.content.data.data[byte_offset_in_block], (BLOCK_SIZE - byte_offset_in_block));
             placeholder += (BLOCK_SIZE - byte_offset_in_block);
             len_left -= (BLOCK_SIZE - byte_offset_in_block);
             len_read += (BLOCK_SIZE - byte_offset_in_block);
             fp->offset += (BLOCK_SIZE - byte_offset_in_block);
+                                         */
             
-                                        /*
+            
             for (int i=byte_offset_in_block; i<BLOCK_SIZE; i++)
             {
                 // this should start at 0 for buff and in correct place in block  for block
@@ -988,7 +990,7 @@ int oufs_fread(OUFILE *fp, unsigned char * buf, int len)
                 fprintf(stderr, "len_read is %d\n", len_read);
                 fprintf(stderr, "inside loop for len_read > bytes left in block\n");
             }
-                                         */
+            
             // might chek to make  sure currentRef isn't UNALLOCATED_BLOCK but shouldn't be if len and such numbers are correct
             // move to next block
             // currentRef is already pointing to block.next_block from earlier loop
