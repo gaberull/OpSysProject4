@@ -934,6 +934,13 @@ int oufs_fread(OUFILE *fp, unsigned char * buf, int len)
         for (int i=0; i<current_block; i++)
         {
             virtual_disk_read_block(currentRef, &block);
+            ///////// printing for debugging - remove
+            for (int i=0; i<DATA_BLOCK_SIZE; i++)
+            {
+                fprintf(stderr, "BLOCK # %d byte %d is %d\n", currentRef, i, block.content.data.data[i]);
+                
+            }
+            //////////// remove above
             currentRef = block.next_block;
         }
     }
