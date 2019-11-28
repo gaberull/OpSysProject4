@@ -913,6 +913,8 @@ int oufs_fread(OUFILE *fp, unsigned char * buf, int len)
     fprintf(stderr, "inside fread()\n");
     fprintf(stderr, "inside fread(): fp->offset == %d\n", fp->offset);
     fprintf(stderr, "inside fread(): inode.size == %d\n", inode.size);
+    fprintf(stderr, "inside fread(): current_block == %d\n", current_block);
+    fprintf(stderr, "inside fread(): fp->inode_reference is %d\n", fp->inode_reference);
     if (fp->offset == inode.size)
     {
         fprintf(stderr, "in fread(): At end of file\n");
@@ -923,6 +925,7 @@ int oufs_fread(OUFILE *fp, unsigned char * buf, int len)
     
     // read first data block from inode
     BLOCK_REFERENCE currentRef = inode.content;
+    fprintf(stderr, "inside fread(): Initial Block_reference is %d\n", currentRef);
     if (currentRef == UNALLOCATED_BLOCK)
         return -2;
     // get correct block in chain of blocks
@@ -934,6 +937,7 @@ int oufs_fread(OUFILE *fp, unsigned char * buf, int len)
             currentRef = block.next_block;
         }
     }
+    
     // Cases: 1)block_size contains all the bytes needed to read len bytes. Or 2)len is bigger than block_size - byte_offset_in_block
     // now I have the correct data block in block
     //unsigned char * placeholder = NULL;
