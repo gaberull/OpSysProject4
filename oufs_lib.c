@@ -1011,7 +1011,7 @@ int oufs_fread(OUFILE *fp, unsigned char * buf, int len)
                 len_read++;
                 fp->offset++;
                 //fprintf(stderr, "byte offset in block = %d\n", byte_offset_in_block);
-                fprintf(stderr, "buf[%d] = block.data[%d]\n", len_read, i);
+                fprintf(stderr, "buf[%d] = block.data[%d] = %c\n", len_read, i, block.content.data.data[i]);
                 fprintf(stderr, "len_left is %d\n", len_left);
                 fprintf(stderr, "len_read is %d\n", len_read);
             }
