@@ -1010,12 +1010,10 @@ int oufs_fread(OUFILE *fp, unsigned char * buf, int len)
                 len_left--;
                 len_read++;
                 fp->offset++;
-                fprintf(stderr, "FREAD: inside loop for len_read > bytes left in block\n");
-                fprintf(stderr, "byte offset in block = %d\n", byte_offset_in_block);
+                //fprintf(stderr, "byte offset in block = %d\n", byte_offset_in_block);
                 fprintf(stderr, "buf[%d] = block.data[%d]\n", len_read, i);
                 fprintf(stderr, "len_left is %d\n", len_left);
                 fprintf(stderr, "len_read is %d\n", len_read);
-                fprintf(stderr, "inside loop for len_read > bytes left in block\n");
             }
             
             // might chek to make  sure currentRef isn't UNALLOCATED_BLOCK but shouldn't be if len and such numbers are correct
