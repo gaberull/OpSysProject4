@@ -755,7 +755,7 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
     BLOCK_REFERENCE new;
     BLOCK * newBlock = malloc(sizeof(BLOCK));
     
-    fprintf(stderr, "FWRITE: before while loop, inode.size == %u\n", inode.size);
+    fprintf(stderr, "FWRITE: before while loop, inode.size == %d\n", inode.size);
     while(len_written < len)
     {
     
@@ -847,7 +847,7 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
                 len_written++;
                 fp->offset++;
                 inode.size++;
-                fprintf(stderr, "FWRITE: block will hold data, inode.size == %s\n", inode.size);
+                fprintf(stderr, "FWRITE: block will hold data, inode.size == %d\n", inode.size);
             }
             virtual_disk_write_block(currBlock, &block);
         }
