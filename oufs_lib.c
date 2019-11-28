@@ -755,7 +755,7 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
     BLOCK_REFERENCE new;
     BLOCK * newBlock = malloc(sizeof(BLOCK));
     
-    fprintf(stderr, "FWRITE: before while loop, inode.size == %s\n", inode.size);
+    fprintf(stderr, "FWRITE: before while loop, inode.size == %u\n", inode.size);
     while(len_written < len)
     {
     
