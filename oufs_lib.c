@@ -1015,7 +1015,7 @@ int oufs_fread(OUFILE *fp, unsigned char * buf, int len)
             len_left -= len_left;
             len_read += len_left;
             fp->offset += len_left;
-            
+            fprintf(stderr, "in fread(): after memcpy, len_read is %d, len is %d\n", len_read, len);
                                 /*
             for (int i=start; i<finish; i++)
             {
