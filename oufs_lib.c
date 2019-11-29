@@ -757,7 +757,7 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
     virtual_disk_read_block(currBlock, &block);
     //fprintf(stderr, "before for loop. inode.content =  %d\n", inode.content);
     BLOCK_REFERENCE new;
-    BLOCK * newBlock = malloc(sizeof(BLOCK));
+    BLOCK * newBlock = malloc(BLOCK_SIZE);
     
     fprintf(stderr, "FWRITE: before while loop, inode.size == %d\n", inode.size);
     while(len_written < len)
