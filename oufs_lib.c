@@ -1012,8 +1012,8 @@ int oufs_fread(OUFILE *fp, unsigned char * buf, int len)
             
             memcpy(buf, block.content.data.data+byte_offset_in_block, len_left);
             buf += len_left;
-            len_left -= len_left;
             len_read += len_left;
+            len_left -= len_left;
             fp->offset += len_left;
             fprintf(stderr, "in fread(): after memcpy, len_read is %d, len is %d\n", len_read, len);
                                 /*
@@ -1042,8 +1042,8 @@ int oufs_fread(OUFILE *fp, unsigned char * buf, int len)
             
             memcpy(buf, block.content.data.data+byte_offset_in_block, (BLOCK_SIZE - byte_offset_in_block));
             buf += (BLOCK_SIZE - byte_offset_in_block);
-            len_left -= (BLOCK_SIZE - byte_offset_in_block);
             len_read += (BLOCK_SIZE - byte_offset_in_block);
+            len_left -= (BLOCK_SIZE - byte_offset_in_block);
             fp->offset += (BLOCK_SIZE - byte_offset_in_block);
             
                                         /*
