@@ -791,6 +791,8 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
             len_written += free_bytes_in_last_block;
             fp->offset += free_bytes_in_last_block;
             inode.size += free_bytes_in_last_block;
+            
+            virtual_disk_write_block(currBlock, &block);
                                     /*
             for (int i=used_bytes_in_last_block; i<DATA_BLOCK_SIZE; i++)
             {
