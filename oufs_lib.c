@@ -850,7 +850,7 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
             // After memcpy
             //fprintf(stderr, "\tAfter memcpy to shift block to be newBlock: block.next_block is %d\n", block.next_block);
             //block = newBlock;
-            memset(newBlock, 0, BLOCK_SIZE);
+            memset(newBlock, 0, sizeof(BLOCK));
         }
         else    // whats left to write will fit in free space left in last block
         {
@@ -954,7 +954,8 @@ int oufs_fread(OUFILE *fp, unsigned char * buf, int len)
     
     if (current_block > 0)
     {
-        for (int i=0; i<current_block; i++)
+        // TODO: check this. adding 1 to current_block to make sure iterates correct num times
+        for (int i=0; i<(current_block+1); i++)
         {
             virtual_disk_read_block(currentRef, &block);
             
