@@ -721,7 +721,7 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
      {
          BLOCK_REFERENCE startref;
          //BLOCK startblock;
-         BLOCK *startblock = malloc(sizeof(BLOCK));
+         BLOCK *startblock = malloc(BLOCK_SIZE);
          startref = oufs_allocate_new_block(&master, startblock);
          //fprintf(stderr, "startref ==   %d\n", startref);
          inode.content = startref;
