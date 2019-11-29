@@ -957,7 +957,7 @@ int oufs_fread(OUFILE *fp, unsigned char * buf, int len)
     if (current_block > 0)
     {
         // TODO: check this. adding 1 to current_block to make sure iterates correct num times
-        for (int i=0; i<(current_block+1); i++)
+        for (int i=0; i<(current_block); i++)
         {
             virtual_disk_read_block(currentRef, &block);
             
