@@ -785,7 +785,9 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
         {
             // may not need this at all. Just trying to be safe.
             virtual_disk_read_block(MASTER_BLOCK_REFERENCE, &master);
-            memcpy(block.content.data.data[used_bytes_in_last_block], &buf[len_written], free_bytes_in_last_block);
+            memcpy(block.content.data.data+used_bytes_in_last_block, buf, free_bytes_in_last_block);
+            //memcpy(block.content.data.data[used_bytes_in_last_block], &buf[len_written], free_bytes_in_last_block);
+            buf += free_bytes_in_last_block;
             len_written += free_bytes_in_last_block;
             fp->offset += free_bytes_in_last_block;
             inode.size += free_bytes_in_last_block;
@@ -852,7 +854,9 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
         }
         else    // whats left to write will fit in free space left in last block
         {
-            memcpy(block.content.data.data[used_bytes_in_last_block], &buf[len_written], bytes_left_to_write);
+            memcpy(block.content.data.data+used_bytes_in_last_block, buf, bytes_left_to_write);
+            //memcpy(block.content.data.data[used_bytes_in_last_block], &buf[len_written], free_bytes_in_last_block);
+            buf += bytes_left_to_write;
             len_written += bytes_left_to_write;
             fp->offset += bytes_left_to_write;
             inode.size += bytes_left_to_write;
@@ -996,8 +1000,18 @@ int oufs_fread(OUFILE *fp, unsigned char * buf, int len)
             fp->offset += len_left;
             placeholder += len_left;
                              */
+                                        /*
             
-            memcpy(&buf[len_read], block.content.data.data[byte_offset_in_block], len_left);
+            memcpy(block.content.data.data+used_bytes_in_last_block, buf, bytes_left_to_write);
+            //memcpy(block.content.data.data[used_bytes_in_last_block], &buf[len_written], free_bytes_in_last_block);
+            buf += bytes_left_to_write;
+            len_written += bytes_left_to_write;
+            fp->offset += bytes_left_to_write;
+            inode.size += bytes_left_to_write;
+                                         */
+            
+            memcpy(buf, block.content.data.data+byte_offset_in_block, len_left);
+            buf += len_left;
             len_left -= len_left;
             len_read += len_left;
             fp->offset += len_left;
@@ -1026,7 +1040,8 @@ int oufs_fread(OUFILE *fp, unsigned char * buf, int len)
             fp->offset += (BLOCK_SIZE - byte_offset_in_block);
                                          */
             
-            memcpy(&buf[len_read], block.content.data.data[byte_offset_in_block], (BLOCK_SIZE - byte_offset_in_block));
+            memcpy(buf, block.content.data.data+byte_offset_in_block, (BLOCK_SIZE - byte_offset_in_block));
+            buf += (BLOCK_SIZE - byte_offset_in_block);
             len_left -= (BLOCK_SIZE - byte_offset_in_block);
             len_read += (BLOCK_SIZE - byte_offset_in_block);
             fp->offset += (BLOCK_SIZE - byte_offset_in_block);
