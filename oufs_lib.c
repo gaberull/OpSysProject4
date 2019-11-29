@@ -847,12 +847,12 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
             //memcpy(&currBlock, &new, sizeof(BLOCK_REFERENCE));
             //TODO: check that this copy works
             //fprintf(stderr, "\tBefore memcpy to shift block to be newBlock: block.next_block is %d\n", block.next_block);
-            memset(&block, 0, sizeof(BLOCK));
-            memcpy(&block, newBlock, sizeof(BLOCK));
+            memset(&block, 0, BLOCK_SIZE);
+            memcpy(&block, newBlock, BLOCK_SIZE);
             // After memcpy
             //fprintf(stderr, "\tAfter memcpy to shift block to be newBlock: block.next_block is %d\n", block.next_block);
             //block = newBlock;
-            memset(newBlock, 0, sizeof(BLOCK));
+            memset(newBlock, 0, BLOCK_SIZE);
         }
         else    // whats left to write will fit in free space left in last block
         {
