@@ -606,7 +606,7 @@ OUFILE* oufs_fopen(char *cwd, char *path, char *mode)
     ///// APPEND ////////
     else    // mode is 'a'  APPEND
     {
-        fprintf(stderr, "INSIDE FOPEN 'A': local_name is %s\n", local_name);
+        //fprintf(stderr, "INSIDE FOPEN 'A': local_name is %s\n", local_name);
         // if file doesn't exist
         if (child == UNALLOCATED_INODE)
         {
@@ -648,7 +648,7 @@ OUFILE* oufs_fopen(char *cwd, char *path, char *mode)
         file->mode = 'a';
         
     }
-    fprintf(stderr, "End of fopen(): returning file. file->mode == %c\n", file->mode);
+    //fprintf(stderr, "End of fopen(): returning file. file->mode == %c\n", file->mode);
   return (file);
 };
 
@@ -764,7 +764,7 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
     BLOCK * newBlock = malloc(BLOCK_SIZE);
     memset(newBlock, 0, BLOCK_SIZE);
     
-    fprintf(stderr, "FWRITE: before while loop, inode.size == %d\n", inode.size);
+    //fprintf(stderr, "FWRITE: before while loop, inode.size == %d\n", inode.size);
     while(len_written < len)
     {
     
@@ -806,7 +806,7 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
                 len_written++;
                 fp->offset++;
                 inode.size++;
-                fprintf(stderr, "fwrite: block.data[%d] = buf[%d] = %c\n", i, len_written, buf[len_written]);
+                //fprintf(stderr, "fwrite: block.data[%d] = buf[%d] = %c\n", i, len_written, buf[len_written]);
                 //debug print statement
                 //fprintf(stderr, "len_written ==  %d\n", len_written);
             }
@@ -824,9 +824,9 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
                 return -2;
             // write master block back to disk - changed its unallocated_front
             virtual_disk_write_block(MASTER_BLOCK_REFERENCE, &master);
-            fprintf(stderr, "block.next_block pointed to %d BEFORE adding new one to end\n", block.next_block);
+            //fprintf(stderr, "block.next_block pointed to %d BEFORE adding new one to end\n", block.next_block);
             block.next_block = new;
-            fprintf(stderr, "block.next_block now points to %d AFTER adding new one to end\n", block.next_block);
+            //fprintf(stderr, "block.next_block now points to %d AFTER adding new one to end\n", block.next_block);
             //TODO: check if i need to use malloc for block or not
             virtual_disk_write_block(currBlock, &block);
             virtual_disk_write_block(new, newBlock);
@@ -875,7 +875,7 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
                 len_written++;
                 fp->offset++;
                 inode.size++;
-                fprintf(stderr, "fwrite: block.data[%d] = buf[%d] = %c\n", i, len_written, buf[len_written]);
+                //fprintf(stderr, "fwrite: block.data[%d] = buf[%d] = %c\n", i, len_written, buf[len_written]);
                 //fprintf(stderr, "FWRITE: block will hold data, inode.size == %d\n", inode.size);
                 //fprintf(stderr, "FWRITE: Loops #%d bytes left to write = %d\n", i, bytes_left_to_write);
             }
@@ -885,11 +885,11 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
     }
     if (debug)
     {
-        fprintf(stderr, "end of fwrite: fp->offset is %d\n", fp->offset);
+        //fprintf(stderr, "end of fwrite: fp->offset is %d\n", fp->offset);
         // number of data_blocks is 0 before an attempted write. one should be allocated first.
-        fprintf(stderr, "end of fwrite: fp->n_data_blocks is %d\n", fp->n_data_blocks);
-        fprintf(stderr, "end of fwrite: inode.size is %d\n", inode.size);
-        fprintf(stderr, "end of fwrite: len_written is %d\n", len_written);
+        //fprintf(stderr, "end of fwrite: fp->n_data_blocks is %d\n", fp->n_data_blocks);
+        //fprintf(stderr, "end of fwrite: inode.size is %d\n", inode.size);
+        //fprintf(stderr, "end of fwrite: len_written is %d\n", len_written);
     }
     //inode size has changed. write it to disk
     oufs_write_inode_by_reference(fp->inode_reference, &inode);
@@ -939,11 +939,11 @@ int oufs_fread(OUFILE *fp, unsigned char * buf, int len)
   // TODO
     // TODO: check if this should be here or later, or both??
     
-    fprintf(stderr, "inside fread()\n");
-    fprintf(stderr, "inside fread(): fp->offset == %d\n", fp->offset);
-    fprintf(stderr, "inside fread(): inode.size == %d\n", inode.size);
-    fprintf(stderr, "inside fread(): current_block == %d\n", current_block);
-    fprintf(stderr, "inside fread(): fp->inode_reference is %d\n", fp->inode_reference);
+    //fprintf(stderr, "inside fread()\n");
+    //fprintf(stderr, "inside fread(): fp->offset == %d\n", fp->offset);
+    //fprintf(stderr, "inside fread(): inode.size == %d\n", inode.size);
+    //fprintf(stderr, "inside fread(): current_block == %d\n", current_block);
+    //fprintf(stderr, "inside fread(): fp->inode_reference is %d\n", fp->inode_reference);
     if (fp->offset == inode.size)
     {
         fprintf(stderr, "in fread(): At end of file\n");
@@ -953,7 +953,7 @@ int oufs_fread(OUFILE *fp, unsigned char * buf, int len)
     
     // read first data block from inode
     BLOCK_REFERENCE currentRef = inode.content;
-    fprintf(stderr, "inside fread(): Initial Block_reference is %d\n", currentRef);
+    //fprintf(stderr, "inside fread(): Initial Block_reference is %d\n", currentRef);
     if (currentRef == UNALLOCATED_BLOCK)
         return -2;
    
@@ -1017,7 +1017,7 @@ int oufs_fread(OUFILE *fp, unsigned char * buf, int len)
                 //changed below from buf[len - len_left]
                 // TODO: make sure can copy this over this way. Might have to do strcpy or something
                 buf[len_read] = block.content.data.data[i];
-                fprintf(stderr, "inside fread: wrote to buf[%d] = %c\n", len_read, block.content.data.data[i]);
+                //fprintf(stderr, "inside fread: wrote to buf[%d] = %c\n", len_read, block.content.data.data[i]);
                 len_left--;
                 len_read++;
                 fp->offset++;
@@ -1046,9 +1046,9 @@ int oufs_fread(OUFILE *fp, unsigned char * buf, int len)
                 len_read++;
                 fp->offset++;
                 //fprintf(stderr, "byte offset in block = %d\n", byte_offset_in_block);
-                fprintf(stderr, "buf[%d] = block.data[%d] = %c\n", len_read, i, block.content.data.data[i]);
-                fprintf(stderr, "len_left is %d\n", len_left);
-                fprintf(stderr, "len_read is %d\n", len_read);
+                //fprintf(stderr, "buf[%d] = block.data[%d] = %c\n", len_read, i, block.content.data.data[i]);
+                //fprintf(stderr, "len_left is %d\n", len_left);
+                //fprintf(stderr, "len_read is %d\n", len_read);
             }
             
             
@@ -1063,7 +1063,7 @@ int oufs_fread(OUFILE *fp, unsigned char * buf, int len)
             }
             virtual_disk_read_block(currentRef, &block);
             currentRef = block.next_block;
-            fprintf(stderr, "**** BLOCK %d ****\n", currentRef);
+            //fprintf(stderr, "**** BLOCK %d ****\n", currentRef);
         }
         // recalculate things that I use for next loop
         byte_offset_in_block = fp->offset % DATA_BLOCK_SIZE;
