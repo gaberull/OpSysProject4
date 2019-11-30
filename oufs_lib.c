@@ -758,6 +758,7 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
     //fprintf(stderr, "before for loop. inode.content =  %d\n", inode.content);
     BLOCK_REFERENCE new;
     BLOCK * newBlock = malloc(DATA_BLOCK_SIZE);
+    memset(newBlock, 0, DATA_BLOCK_SIZE);
     
     fprintf(stderr, "FWRITE: before while loop, inode.size == %d\n", inode.size);
     while(len_written < len)
@@ -793,13 +794,11 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
             
             virtual_disk_write_block(currBlock, &block);
                                          */
-            
+            virtual_disk_read_block(MASTER_BLOCK_REFERENCE, &master);
             for (int i=used_bytes_in_last_block; i<DATA_BLOCK_SIZE; i++)
             {
                 
                 block.content.data.data[i] = buf[len_written];
-                // changing above line to one below; TODO: check this
-                //block.content.data.data[i] = buf[len_written];
                 len_written++;
                 fp->offset++;
                 inode.size++;
@@ -807,7 +806,7 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
                 //debug print statement
                 //fprintf(stderr, "len_written ==  %d\n", len_written);
             }
-            
+            virtual_disk_write_block(currBlock, &block);
             // check to see if number of blocks <= 100
             // allocate new block
             // TODO: check that this is assigning correctly. May be staying the same each time due to the function creating its own block_ref and assigning it to new with = operator
@@ -876,7 +875,7 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
                 //fprintf(stderr, "FWRITE: block will hold data, inode.size == %d\n", inode.size);
                 //fprintf(stderr, "FWRITE: Loops #%d bytes left to write = %d\n", i, bytes_left_to_write);
             }
-                                 
+            
             virtual_disk_write_block(currBlock, &block);
         }
     }
@@ -1035,7 +1034,7 @@ int oufs_fread(OUFILE *fp, unsigned char * buf, int len)
                                          */
             
             
-            for (int i=byte_offset_in_block; i<BLOCK_SIZE; i++)
+            for (int i=byte_offset_in_block; i<DATA_BLOCK_SIZE; i++)
             {
                 // this should start at 0 for buff and in correct place in block  for block
                 buf[len_read] = block.content.data.data[i];
