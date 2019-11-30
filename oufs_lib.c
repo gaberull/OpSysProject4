@@ -543,7 +543,7 @@ OUFILE* oufs_fopen(char *cwd, char *path, char *mode)
         int count = 0;
         BLOCK_REFERENCE b;
         b = inode.content;
-        BLOCK *c = malloc(sizeof(BLOCK));
+        BLOCK *c = malloc(DATA_BLOCK_SIZE);
         virtual_disk_read_block(b, c);
         while (b != UNALLOCATED_BLOCK)
         {
@@ -624,7 +624,7 @@ OUFILE* oufs_fopen(char *cwd, char *path, char *mode)
             int count = 0;
             BLOCK_REFERENCE b;
             b = inode.content;
-            BLOCK *c = malloc(sizeof(BLOCK));
+            BLOCK *c = malloc(DATA_BLOCK_SIZE);
             
             while (b != UNALLOCATED_BLOCK)
             {
