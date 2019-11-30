@@ -721,7 +721,7 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
      {
          BLOCK_REFERENCE startref;
          //BLOCK startblock;
-         BLOCK *startblock = malloc(DATA_BLOCK_SIZE);
+         BLOCK *startblock = malloc(BLOCK_SIZE);
          startref = oufs_allocate_new_block(&master, startblock);
          //fprintf(stderr, "startref ==   %d\n", startref);
          inode.content = startref;
@@ -757,8 +757,8 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
     virtual_disk_read_block(currBlock, &block);
     //fprintf(stderr, "before for loop. inode.content =  %d\n", inode.content);
     BLOCK_REFERENCE new;
-    BLOCK * newBlock = malloc(DATA_BLOCK_SIZE);
-    memset(newBlock, 0, DATA_BLOCK_SIZE);
+    BLOCK * newBlock = malloc(BLOCK_SIZE);
+    memset(newBlock, 0, BLOCK_SIZE);
     
     fprintf(stderr, "FWRITE: before while loop, inode.size == %d\n", inode.size);
     while(len_written < len)
@@ -846,12 +846,12 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
             //memcpy(&currBlock, &new, sizeof(BLOCK_REFERENCE));
             //TODO: check that this copy works
             //fprintf(stderr, "\tBefore memcpy to shift block to be newBlock: block.next_block is %d\n", block.next_block);
-            memset(&block, 0, DATA_BLOCK_SIZE);
-            memcpy(&block, newBlock, DATA_BLOCK_SIZE);
+            memset(&block, 0, BLOCK_SIZE);
+            memcpy(&block, newBlock, BLOCK_SIZE);
             // After memcpy
             //fprintf(stderr, "\tAfter memcpy to shift block to be newBlock: block.next_block is %d\n", block.next_block);
             //block = newBlock;
-            memset(newBlock, 0, DATA_BLOCK_SIZE);
+            memset(newBlock, 0, BLOCK_SIZE);
         }
         else    // whats left to write will fit in free space left in last block
         {
