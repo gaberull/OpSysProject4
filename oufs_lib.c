@@ -1128,8 +1128,6 @@ int oufs_remove(char *cwd, char *path)
     // read parent directory to block
     virtual_disk_read_block(inode_parent.content, &block);
     
-    // get temp BLOCK REF so we can write it back after removing inode.content (if n_ref == 0)
-    BLOCK_REFERENCE temp = inode.content;
     for (int i=0; i<N_DIRECTORY_ENTRIES_PER_BLOCK; i++)
     {
         if (block.content.directory.entry[i].inode_reference == child)
@@ -1146,8 +1144,6 @@ int oufs_remove(char *cwd, char *path)
         {
             return -2;
         }
-        
-        inode.content = UNALLOCATED_BLOCK;
         BLOCK master;
         virtual_disk_read_block(MASTER_BLOCK_REFERENCE, &master);
         // deallocate inode in inode allocation table in master block
@@ -1157,7 +1153,7 @@ int oufs_remove(char *cwd, char *path)
         virtual_disk_write_block(MASTER_BLOCK_REFERENCE, &master);
         
     }
-    virtual_disk_write_block(temp, &block);
+    virtual_disk_write_block(inode_parent.content, &block);
     oufs_write_inode_by_reference(parent, &inode_parent);
     oufs_write_inode_by_reference(child, &inode);
         
