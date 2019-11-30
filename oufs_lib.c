@@ -559,7 +559,6 @@ OUFILE* oufs_fopen(char *cwd, char *path, char *mode)
         file->n_data_blocks = count;
         file->inode_reference = child;
         file->mode = 'r';
-        fprintf(stderr, "inside fopen for read: n_data_blocks = %d\n", file->n_data_blocks);
         //fprintf(stderr, "inside fopen for read: n_data_blocks = %d\n", file->n_data_blocks);
 
         //////
@@ -1070,7 +1069,7 @@ int oufs_fread(OUFILE *fp, unsigned char * buf, int len)
     }
     
   // Done
-    fprintf(stderr, "Made it to end of fread(): returning %d\n", len_read);
+    //fprintf(stderr, "Made it to end of fread(): returning %d\n", len_read);
   return(len_read);
 }
 
@@ -1138,6 +1137,7 @@ int oufs_remove(char *cwd, char *path)
             break;
         }
     }
+    fprintf(stderr, "REMOVE: inode.n_references = %d\n", inode.n_references);
     if (inode.n_references == 0)
     {
         if (oufs_deallocate_blocks(&inode) < 0)
