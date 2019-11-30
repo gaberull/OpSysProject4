@@ -568,6 +568,7 @@ OUFILE* oufs_fopen(char *cwd, char *path, char *mode)
         if (child == UNALLOCATED_INODE)
         {
             child = oufs_create_file(parent, local_name);
+            fprintf(stderr, "INSIDE FOPEN 'w': child is is %d\n", child);
             if (child == UNALLOCATED_INODE)
             {
                 return (NULL);
