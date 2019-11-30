@@ -574,6 +574,7 @@ OUFILE* oufs_fopen(char *cwd, char *path, char *mode)
                 return (NULL);
             }
             oufs_read_inode_by_reference(child, &inode);
+            //file->inode_reference = child;
             // inode is now the inode for new file
             
         }
@@ -641,7 +642,7 @@ OUFILE* oufs_fopen(char *cwd, char *path, char *mode)
         file->mode = 'a';
         
     }
-
+    fprintf(stderr, "End of fopen(): returning file. file->mode == %c\n", file->mode);
   return (file);
 };
 
