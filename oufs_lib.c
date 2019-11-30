@@ -537,9 +537,12 @@ OUFILE* oufs_fopen(char *cwd, char *path, char *mode)
             fprintf(stderr, "oufs_fopen() Child not found for mode 'r'\n");
             return (NULL);
         }
-        
         oufs_read_inode_by_reference(child, &inode);
         // Walk down the linked list of blocks (while loop, read content of inode - assuming it exists) increment counter. Put those block references in the cache array
+        if (inode.type == DIRECTORY_TYPE)
+        {
+            return NULL;
+        }
         int count = 0;
         BLOCK_REFERENCE b;
         b = inode.content;
