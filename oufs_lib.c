@@ -1134,6 +1134,7 @@ int oufs_remove(char *cwd, char *path)
             strcpy(block.content.directory.entry[i].name, "");
             block.content.directory.entry[i].inode_reference = UNALLOCATED_INODE;
             inode.n_references--;
+            inode_parent.size--;
             break;
         }
     }
