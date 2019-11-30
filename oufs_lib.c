@@ -783,8 +783,7 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
         // fewer bytes of space available in last block than need to be written
         if (free_bytes_in_last_block < bytes_left_to_write)
         {
-            // may not need this at all. Just trying to be safe.
-            virtual_disk_read_block(MASTER_BLOCK_REFERENCE, &master);
+                                        /*
             memcpy(block.content.data.data+used_bytes_in_last_block, buf, free_bytes_in_last_block);
             //memcpy(block.content.data.data[used_bytes_in_last_block], &buf[len_written], free_bytes_in_last_block);
             buf += free_bytes_in_last_block;
@@ -793,7 +792,8 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
             inode.size += free_bytes_in_last_block;
             
             virtual_disk_write_block(currBlock, &block);
-                                    /*
+                                         */
+            
             for (int i=used_bytes_in_last_block; i<DATA_BLOCK_SIZE; i++)
             {
                 
@@ -807,7 +807,7 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
                 //debug print statement
                 //fprintf(stderr, "len_written ==  %d\n", len_written);
             }
-                                     */
+            
             // check to see if number of blocks <= 100
             // allocate new block
             // TODO: check that this is assigning correctly. May be staying the same each time due to the function creating its own block_ref and assigning it to new with = operator
@@ -856,13 +856,15 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
         }
         else    // whats left to write will fit in free space left in last block
         {
+                                                    /*
             memcpy(block.content.data.data+used_bytes_in_last_block, buf, bytes_left_to_write);
             //memcpy(block.content.data.data[used_bytes_in_last_block], &buf[len_written], free_bytes_in_last_block);
             buf += bytes_left_to_write;
             len_written += bytes_left_to_write;
             fp->offset += bytes_left_to_write;
             inode.size += bytes_left_to_write;
-                                /*
+                                                     */
+            
             for (int i=used_bytes_in_last_block; i<(used_bytes_in_last_block + bytes_left_to_write); i++)
             {
                 // TODO: check. changed below line from block.content.data.data[i] = buf[i-used_bytes_in_last_block];
@@ -874,7 +876,7 @@ int oufs_fwrite(OUFILE *fp, unsigned char * buf, int len)
                 //fprintf(stderr, "FWRITE: block will hold data, inode.size == %d\n", inode.size);
                 //fprintf(stderr, "FWRITE: Loops #%d bytes left to write = %d\n", i, bytes_left_to_write);
             }
-                                 */
+                                 
             virtual_disk_write_block(currBlock, &block);
         }
     }
@@ -957,7 +959,7 @@ int oufs_fread(OUFILE *fp, unsigned char * buf, int len)
     if (current_block > 0)
     {
         // TODO: check this. adding 1 to current_block to make sure iterates correct num times
-        for (int i=0; i<(current_block); i++)
+        for (int i=0; i<(current_block+1); i++)
         {
             virtual_disk_read_block(currentRef, &block);
             
@@ -996,23 +998,8 @@ int oufs_fread(OUFILE *fp, unsigned char * buf, int len)
             int finish = byte_offset_in_block + len_left;
             
             
-                            /*
-            memcpy(placeholder, &block.content.data.data[byte_offset_in_block], len_left);
-            len_left = 0;
-            len_read += len_left;
-            fp->offset += len_left;
-            placeholder += len_left;
-                             */
-                                        /*
             
-            memcpy(block.content.data.data+used_bytes_in_last_block, buf, bytes_left_to_write);
-            //memcpy(block.content.data.data[used_bytes_in_last_block], &buf[len_written], free_bytes_in_last_block);
-            buf += bytes_left_to_write;
-            len_written += bytes_left_to_write;
-            fp->offset += bytes_left_to_write;
-            inode.size += bytes_left_to_write;
-                                         */
-            
+                                /*
             memcpy(buf, block.content.data.data+byte_offset_in_block, len_left);
             buf += len_left;
             len_read += len_left;
@@ -1020,7 +1007,8 @@ int oufs_fread(OUFILE *fp, unsigned char * buf, int len)
             len_left -= len_left;
             
             fprintf(stderr, "in fread(): after memcpy, len_read is %d, len is %d\n", len_read, len);
-                                /*
+                                 */
+            
             for (int i=start; i<finish; i++)
             {
                 //changed below from buf[len - len_left]
@@ -1031,26 +1019,22 @@ int oufs_fread(OUFILE *fp, unsigned char * buf, int len)
                 len_read++;
                 fp->offset++;
             }
-                                 */
+            
             
         }
         else        // Not enough space in block. We will have to grab the next block
         {
+            
                                         /*
-           memcpy(placeholder, &block.content.data.data[byte_offset_in_block], (BLOCK_SIZE - byte_offset_in_block));
-            placeholder += (BLOCK_SIZE - byte_offset_in_block);
-            len_left -= (BLOCK_SIZE - byte_offset_in_block);
-            len_read += (BLOCK_SIZE - byte_offset_in_block);
-            fp->offset += (BLOCK_SIZE - byte_offset_in_block);
-                                         */
             
             memcpy(buf, block.content.data.data+byte_offset_in_block, (DATA_BLOCK_SIZE - byte_offset_in_block));
             buf += (DATA_BLOCK_SIZE - byte_offset_in_block);
             len_read += (DATA_BLOCK_SIZE - byte_offset_in_block);
             fp->offset += (DATA_BLOCK_SIZE - byte_offset_in_block);
             len_left -= (DATA_BLOCK_SIZE - byte_offset_in_block);
+                                         */
             
-                                        /*
+            
             for (int i=byte_offset_in_block; i<BLOCK_SIZE; i++)
             {
                 // this should start at 0 for buff and in correct place in block  for block
@@ -1063,7 +1047,7 @@ int oufs_fread(OUFILE *fp, unsigned char * buf, int len)
                 fprintf(stderr, "len_left is %d\n", len_left);
                 fprintf(stderr, "len_read is %d\n", len_read);
             }
-                                         */
+            
             
             // might chek to make  sure currentRef isn't UNALLOCATED_BLOCK but shouldn't be if len and such numbers are correct
             // move to next block
