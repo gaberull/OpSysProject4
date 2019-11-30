@@ -585,7 +585,10 @@ OUFILE* oufs_fopen(char *cwd, char *path, char *mode)
         {
             oufs_read_inode_by_reference(child, &inode);
             // deallocate blocks of file
-            
+            if (inode.type == DIRECTORY_TYPE)
+            {
+                return NULL;
+            }
             if (oufs_deallocate_blocks(&inode) < 0)
                 return (NULL);
             
