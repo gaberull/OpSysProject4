@@ -1253,16 +1253,11 @@ int oufs_link(char *cwd, char *path_src, char *path_dst)
             break;
         }
     }
+    // write block and both inodes back to disk
     virtual_disk_write_block(inode_dst.content, &block);
     oufs_write_inode_by_reference(parent_dst, &inode_dst);
     oufs_write_inode_by_reference(child_src, &inode_src);
     
-                        /*
-    virtual_disk_write_block(inode_dst.content, &block);
-    oufs_write_inode_by_reference(parent_dst, &inode_dst);
-    oufs_write_inode_by_reference(child_src, &inode_src);
-    //oufs_write_inode_by_reference(child_dst, &inode_src);
-                         */
     
     // SUCCESS
     return 0;
