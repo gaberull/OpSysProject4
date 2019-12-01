@@ -1236,6 +1236,8 @@ int oufs_link(char *cwd, char *path_src, char *path_dst)
     if(oufs_read_inode_by_reference(child_src, &inode_src) != 0) {
         return(-7);
     }
+    if (inode_src.type == DIRECTORY_TYPE)
+        return -2;
     // Read content
     virtual_disk_read_block(inode_dst.content, &block);
     for (int i=0; i<N_DIRECTORY_ENTRIES_PER_BLOCK; i++)
@@ -1255,7 +1257,8 @@ int oufs_link(char *cwd, char *path_src, char *path_dst)
     oufs_write_inode_by_reference(parent_dst, &inode_dst);
     oufs_write_inode_by_reference(child_src, &inode_src);
     
-    
+    // SUCCESS
+    return 0;
 }
 
 
