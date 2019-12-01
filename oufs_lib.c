@@ -1254,6 +1254,7 @@ int oufs_link(char *cwd, char *path_src, char *path_dst)
         }
     }
     //inode_dst.content =
+    virtual_disk_read_block(inode_dst.content, &block);
     oufs_write_inode_by_reference(parent_dst, &inode_dst);
     oufs_write_inode_by_reference(child_src, &inode_src);
     
