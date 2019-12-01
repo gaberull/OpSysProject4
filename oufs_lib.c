@@ -1229,6 +1229,33 @@ int oufs_link(char *cwd, char *path_src, char *path_dst)
 
 
   // TODO
+    // Get the inode of the src parent
+    if(oufs_read_inode_by_reference(parent_dst, &inode_dst) != 0) {
+        return(-7);
+    }
+    if(oufs_read_inode_by_reference(child_src, &inode_src) != 0) {
+        return(-7);
+    }
+    // Read content
+    virtual_disk_read_block(inode_dst.content, &block);
+    for (int i=0; i<N_DIRECTORY_ENTRIES_PER_BLOCK; i++)
+    {
+        if (block.content.directory.entry[i].inode_reference == UNALLOCATED_INODE)
+        {
+            block.content.directory.entry[i].inode_reference = child_src;
+            strcpy(block.content.directory.entry[i].name, local_name_bogus);
+            inode_dst.size++;
+            //INODE inode_child_dst;
+            inode_src.n_references++;
+            //void oufs_set_inode(*inode_child_dest, INODE_TYPE type, int n_references, BLOCK_REFERENCE content, int size)
+            break;
+        }
+    }
+    //inode_dst.content =
+    oufs_write_inode_by_reference(parent_dst, &inode_dst);
+    oufs_write_inode_by_reference(child_src, &inode_src);
+    
+    
 }
 
 
