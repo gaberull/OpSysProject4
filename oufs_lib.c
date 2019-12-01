@@ -1245,7 +1245,7 @@ int oufs_link(char *cwd, char *path_src, char *path_dst)
         if (block.content.directory.entry[i].inode_reference == UNALLOCATED_INODE)
         {
             block.content.directory.entry[i].inode_reference = child_src;
-            strcpy(block.content.directory.entry[i].name, local_name_bogus);
+            strcpy(block.content.directory.entry[i].name, local_name);
             inode_dst.size++;
             //INODE inode_child_dst;
             inode_src.n_references++;
